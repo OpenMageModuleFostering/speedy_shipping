@@ -6,6 +6,8 @@ var shippingStreet;
 var shippingOffice;
 var shippingBlok;
 
+var isFirstPageLoad = 0;
+
 
 $j(document).ready(function(evt){
     
@@ -57,7 +59,7 @@ $j(document).ready(function(evt){
                 var isValid = 0;
 
                             if (quarter || (quarter_id !="0" && quarter_id !="")) {
-                                if ((street || street_id && number) || blockNo) {
+                                if ((street && number || street_id && number) || blockNo) {
                                     isValid = 1;
                                 }
 
