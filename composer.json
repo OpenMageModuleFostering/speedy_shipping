@@ -3,7 +3,7 @@
     "type": "magento-module",
     "license": "Open-Software-License-(OSL-3.0)",
     "homepage": "",
-    "description": "Third release, that includes various improvements and bug fixes.",
+    "description": "ACL support has been added. English translation is now complete. Various bug fixes has been fixed. ",
     "authors": [
     {
         "name": "Speedy",
