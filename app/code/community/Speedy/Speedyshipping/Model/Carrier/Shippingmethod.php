@@ -145,7 +145,7 @@ class Speedy_Speedyshipping_Model_Carrier_Shippingmethod extends Mage_Shipping_M
     public function collectRates(Mage_Shipping_Model_Rate_Request $request) {
         // skip if not enabled
 
-        if (!Mage::getStoreConfig('carriers/' . $this->_code . '/active')) {
+        if (!Mage::getStoreConfig('carriers/' . $this->_code . '/active') || !Mage::getSingleton('checkout/session')->hasQuote()) {
             return false;
         }
 
@@ -449,7 +449,7 @@ class Speedy_Speedyshipping_Model_Carrier_Shippingmethod extends Mage_Shipping_M
                         foreach ($item->getChildren() as $child) {
                             $childProductId = $child->getProductId();
                             $_product = Mage::getModel('catalog/product')->load($childProductId);
-                            if (!$_product->getWeight()) {
+                            if (!(float)$_product->getWeight()) {
                                 $totalWeight += Mage::getStoreConfig('carriers/speedyshippingmodule/default_weight') * $item->getQty();
                                 $noWeightProductList .= $item->getName();
                             } else {
@@ -467,7 +467,7 @@ class Speedy_Speedyshipping_Model_Carrier_Shippingmethod extends Mage_Shipping_M
                             foreach ($item->getChildren() as $child) {
                                 $childProductId = $child->getProductId();
                                 $_product = Mage::getModel('catalog/product')->load($childProductId);
-                                if (!$_product->getWeight()) {
+                                if (!(float)$_product->getWeight()) {
                                     $totalWeight += Mage::getStoreConfig('carriers/speedyshippingmodule/default_weight') * $item->getQty();
                                     $noWeightProductList .= $item->getName();
                                 } else {
@@ -507,7 +507,7 @@ class Speedy_Speedyshipping_Model_Carrier_Shippingmethod extends Mage_Shipping_M
                             $childProductId = $child->getProductId();
                             $_product = Mage::getModel('catalog/product')->load($childProductId);
 
-                            if (!$_product->getWeight() && !$_product->isVirtual()) {
+                            if (!(float)$_product->getWeight() && !$_product->isVirtual()) {
                                 $totalWeight += Mage::getStoreConfig('carriers/speedyshippingmodule/default_weight') * $item->getQty();
                                 $noWeightProductList .= $item->getName();
                             } else {
@@ -526,7 +526,7 @@ class Speedy_Speedyshipping_Model_Carrier_Shippingmethod extends Mage_Shipping_M
                             foreach ($item->getChildren() as $child) {
                                 $childProductId = $child->getProductId();
                                 $_product = Mage::getModel('catalog/product')->load($childProductId);
-                                if (!$_product->getWeight() && !$_product->isVirtual()) {
+                                if (!(float)$_product->getWeight() && !$_product->isVirtual()) {
                                     $totalWeight += Mage::getStoreConfig('carriers/speedyshippingmodule/default_weight') * $item->getQty();
                                     $noWeightProductList .= $item->getName();
                                 } else {
@@ -536,7 +536,7 @@ class Speedy_Speedyshipping_Model_Carrier_Shippingmethod extends Mage_Shipping_M
                             }
                         //}
                     } else {
-                        if (!$item->getWeight()) {
+                        if (!(float)$item->getWeight()) {
                             $totalWeight += Mage::getStoreConfig('carriers/speedyshippingmodule/default_weight') * $item->getQty();
                             $noWeightProductList .= $item->getName();
                         } else {
