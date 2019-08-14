@@ -80,6 +80,13 @@ class ResultOfficeEx {
     protected $_workingTimeSchedule;
 
     /**
+     * Office type
+     * @var integer Signed 16-bit integer
+     * @since 3.0.1
+     */
+    protected $_officeType;
+
+    /**
      * Constructs new instance of ResultStreet
      * @param stdClass $stdClassResultStreet
      */
@@ -94,6 +101,7 @@ class ResultOfficeEx {
         $this->_workingTimeHalfTo   = isset($stdClassResultOffice->workingTimeHalfTo)   ? $stdClassResultOffice->workingTimeHalfTo             : null;
         $this->_maxParcelDimensions = isset($stdClassResultOffice->maxParcelDimensions) ? new Size($stdClassResultOffice->maxParcelDimensions) : null;
         $this->_maxParcelWeight     = isset($stdClassResultOffice->maxParcelWeight)     ? $stdClassResultOffice->maxParcelWeight               : null;
+        $this->_officeType          = isset($stdClassResultOffice->officeType)          ? $stdClassResultOffice->officeType                    : null;
         
         $arrWorkingTimeSchedule = array();
         if (isset($stdClassResultOffice->workingTimeSchedule)) {
@@ -197,6 +205,15 @@ class ResultOfficeEx {
      */
     public function getWorkingTimeSchedule() {
         return $this->_workingTimeSchedule;
+    }
+
+    /**
+     * Get office type
+     * @return signed 16-bit integer (nullable)
+     * @since 3.0.1
+     */
+    public function getOfficeType() {
+        return $this->_getOfficeType;
     }
 }
 ?>

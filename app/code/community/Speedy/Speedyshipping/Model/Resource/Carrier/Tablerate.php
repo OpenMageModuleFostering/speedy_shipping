@@ -71,6 +71,8 @@ class Speedy_Speedyshipping_Model_Resource_Carrier_Tablerate extends Mage_Core_M
         $this->_init('speedyshippingmodule/tablerate', 'pk');
     }
 
+    protected $_fileColumnsIndexes = array();
+
     /**
      * Upload table rate file and import data from it
      *
@@ -97,18 +99,11 @@ class Speedy_Speedyshipping_Model_Resource_Carrier_Tablerate extends Mage_Core_M
         $io->open(array('path' => $info['dirname']));
         $io->streamOpen($info['basename'], 'r');
 
-        // check and skip headers
-        $headers = $io->streamReadCsv();
-        if ($headers === false || count($headers) < 5) {
-            $io->streamClose();
-            Mage::throwException(Mage::helper('shipping')->__('Invalid Speedy Tablerates File Format'));
-        }
-
         $adapter = $this->_getWriteAdapter();
         $adapter->beginTransaction();
 
         try {
-            $rowNumber  = 1;
+            $rowNumber  = 0;
             $importData = array();
 
             // delete old data by website
@@ -167,9 +162,29 @@ class Speedy_Speedyshipping_Model_Resource_Carrier_Tablerate extends Mage_Core_M
      */
     protected function _getImportRow($row, $rowNumber = 0)
     {
-        // validate row
-        if (count($row) < 5) {
-            $this->_importErrors[] = Mage::helper('shipping')->__('Invalid Speedy Tablerates format in the Row #%s', $rowNumber);
+        $file_columns = array(
+            'ServiceID',
+            'TakeFromOffice',
+            'Weight',
+            'OrderTotal',
+            'PriceWithoutVAT',
+            'FixedTimeDelivery',
+        );
+
+        if ($rowNumber == 1) {
+            foreach($row as $index => $columnName) {
+                $this->_fileColumnsIndexes[$columnName] = array_search($columnName, $row);
+            }
+
+            sort($row);
+            sort($file_columns);
+
+            // validate row
+            if ($row != $file_columns) {
+                $this->_importErrors[] = Mage::helper('shipping')->__('Invalid Speedy Tablerates format in the Row #%s', $rowNumber);
+                return false;
+            }
+
             return false;
         }
 
@@ -179,40 +194,42 @@ class Speedy_Speedyshipping_Model_Resource_Carrier_Tablerate extends Mage_Core_M
         }
 
         // validate Service ID
-        if (!(int)$row[0]) {
-            $this->_importErrors[] = Mage::helper('shipping')->__('Invalid Speedy Tablerates format in the Row #%s', $rowNumber);
+        if (!(int)$row[$this->_fileColumnsIndexes['ServiceID']]) {
+            $this->_importErrors[] = Mage::helper('shipping')->__('Invalid ServiceID "%d" in the Row #%s', $row[$this->_fileColumnsIndexes['ServiceID']], $rowNumber);
             return false;
         } else {
-            $ServiceID = (int)$row[0];
+            $ServiceID = (int)$row[$this->_fileColumnsIndexes['ServiceID']];
         }
 
-        $TakeFromOffice = (int)$row[1];
+        $TakeFromOffice = (int)$row[$this->_fileColumnsIndexes['TakeFromOffice']];
 
         // validate weight
-        $Weight = $this->_parseDecimalValue($row[2]);
+        $Weight = $this->_parseDecimalValue($row[$this->_fileColumnsIndexes['Weight']]);
         if ($Weight === false) {
-            $this->_importErrors[] = Mage::helper('shipping')->__('Invalid Weight "%s" in the Row #%s.', $row[2], $rowNumber);
+            $this->_importErrors[] = Mage::helper('shipping')->__('Invalid Weight "%s" in the Row #%s.', $row[$this->_fileColumnsIndexes['Weight']], $rowNumber);
             return false;
         }
 
         // validate ordertotal
-        $OrderTotal = $this->_parseDecimalValue($row[3]);
+        $OrderTotal = $this->_parseDecimalValue($row[$this->_fileColumnsIndexes['OrderTotal']]);
         if ($OrderTotal === false) {
-            $this->_importErrors[] = Mage::helper('shipping')->__('Invalid OrderTotal "%s" in the Row #%s.', $row[3], $rowNumber);
+            $this->_importErrors[] = Mage::helper('shipping')->__('Invalid OrderTotal "%s" in the Row #%s.', $row[$this->_fileColumnsIndexes['OrderTotal']], $rowNumber);
             return false;
         }
 
         // validate price without vat
-        $PriceWithoutVAT = $this->_parseDecimalValue($row[4]);
+        $PriceWithoutVAT = $this->_parseDecimalValue($row[$this->_fileColumnsIndexes['PriceWithoutVAT']]);
         if ($PriceWithoutVAT === false) {
-            $this->_importErrors[] = Mage::helper('shipping')->__('Invalid PriceWithoutVAT "%s" in the Row #%s.', $row[4], $rowNumber);
+            $this->_importErrors[] = Mage::helper('shipping')->__('Invalid PriceWithoutVAT "%s" in the Row #%s.', $row[$this->_fileColumnsIndexes['PriceWithoutVAT']], $rowNumber);
             return false;
         }
 
+        $FixedTimeDelivery = (int)$row[$this->_fileColumnsIndexes['FixedTimeDelivery']];
+
         // protect from duplicate
-        $hash = sprintf("%d-%d-%F-%F-%F", $ServiceID, $TakeFromOffice, $Weight, $OrderTotal, $PriceWithoutVAT);
+        $hash = sprintf("%d-%d-%F-%F-%F-%d", $ServiceID, $TakeFromOffice, $Weight, $OrderTotal, $PriceWithoutVAT, $FixedTimeDelivery);
         if (isset($this->_importUniqueHash[$hash])) {
-            $this->_importErrors[] = Mage::helper('shipping')->__('Duplicate Row #%s (ServiceID "%d", TakeFromOffice "%s", Weight "%F", OrderTotal "%F" and PriceWithoutVAT "%F").', $rowNumber, $ServiceID, $TakeFromOffice, $Weight, $OrderTotal, $PriceWithoutVAT);
+            $this->_importErrors[] = Mage::helper('shipping')->__('Duplicate Row #%s (ServiceID "%d", TakeFromOffice "%s", Weight "%F", OrderTotal "%F", PriceWithoutVAT "%F" and FixedTimeDelivery "%d").', $rowNumber, $ServiceID, $TakeFromOffice, $Weight, $OrderTotal, $PriceWithoutVAT, $FixedTimeDelivery);
             return false;
         }
         $this->_importUniqueHash[$hash] = true;
@@ -223,6 +240,7 @@ class Speedy_Speedyshipping_Model_Resource_Carrier_Tablerate extends Mage_Core_M
             $Weight,                    // Weight
             $OrderTotal,                // Order Total
             $PriceWithoutVAT,           // Price Without VAT
+            $FixedTimeDelivery,         // Fixed Time Delivery
             $this->_importWebsiteId     // Website Id
         );
     }
@@ -236,7 +254,7 @@ class Speedy_Speedyshipping_Model_Resource_Carrier_Tablerate extends Mage_Core_M
     protected function _saveImportData(array $data)
     {
         if (!empty($data)) {
-            $columns = array('service_id', 'take_from_office', 'weight', 'order_total', 'price_without_vat', 'website_id',);
+            $columns = array('service_id', 'take_from_office', 'weight', 'order_total', 'price_without_vat', 'fixed_time_delivery', 'website_id',);
             $this->_getWriteAdapter()->insertArray($this->getMainTable(), $columns, $data);
             $this->_importedRows += count($data);
         }

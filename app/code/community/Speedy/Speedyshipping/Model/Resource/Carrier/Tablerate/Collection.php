@@ -95,9 +95,7 @@ class Speedy_Speedyshipping_Model_Resource_Carrier_Tablerate_Collection extends 
      */
     public function setWeightFilter($weight)
     {
-        $this->getSelect()->where("weight >= ?", (float)$weight);
-
-        return $this;
+        return $this->addFieldToFilter('weight', array('gteq' => (float)$weight));
     }
 
     /**
@@ -108,8 +106,17 @@ class Speedy_Speedyshipping_Model_Resource_Carrier_Tablerate_Collection extends 
      */
     public function setTotalFilter($total)
     {
-        $this->getSelect()->where("order_total >= ?", (float)$total);
+        return $this->addFieldToFilter('order_total', array('gteq' => (float)$total));
+    }
 
-        return $this;
+    /**
+     * Add fixed time delivery filter to collection
+     *
+     * @param string $fixedTimeDelivery
+     * @return Mage_Shipping_Model_Resource_Carrier_Tablerate_Collection
+     */
+    public function setFixedTimeDeliveryFilter($fixedTimeDelivery)
+    {
+        return $this->addFieldToFilter('fixed_time_delivery', $fixedTimeDelivery);
     }
 }

@@ -32,7 +32,7 @@ var fixedHourLabel = "<?php echo $this->__("extra charge").'\"'.$this->__("fixed
             <?php if($isFixedHourEnabled) : ?>
             <tr>
                 <td><label for="speed_exact_hour_enable"><?php echo $this->__("choose fixed hour") ?></label><br />
-                    <?php if($isFixedPrice != 2): ?>
+                    <?php if($isFixedPrice != 2 && $isFixedPrice != 4): ?>
                     <p id="fixed_price_view"><?php echo $this->__("extra charge").'"'.$this->__("fixed hour").'"'; ?></p>
                     <?php endif; ?>
                     </td>

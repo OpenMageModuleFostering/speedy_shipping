@@ -12,8 +12,13 @@
  */
 class Speedy_Speedyshipping_Helper_Data extends Mage_Core_Helper_Abstract {
     //put your code here
-    
-    
+
+    protected $_speedyEPS = null;
+
+    protected $_speedyEPSInterfaceImplementaion = null;
+
+    protected $_speedySessionId = null;
+
      protected function _initSpeedyService() {
         $speedyUtil = Mage::getBaseDir('lib') . DS . 'SpeedyEPS' . DS . 'util' . DS . 'Util.class.php';
         $speedyEPSFacade = Mage::getBaseDir('lib') . DS . 'SpeedyEPS' . DS . 'ver01' . DS . 'EPSFacade.class.php';
@@ -46,6 +51,23 @@ class Speedy_Speedyshipping_Helper_Data extends Mage_Core_Helper_Abstract {
         } catch (ServerException $se) {
             throw new Exception($se->getMessage());
         }
+    }
+
+    public function checkReturnVoucherRequested($bol_id) {
+        $this->_initSpeedyService();
+        $voucherRequested = false;
+
+        try {
+            $pickingExtendedInfo = $this->_speedyEPS->getPickingExtendedInfo($bol_id);
+
+            if (!is_null($pickingExtendedInfo->getReturnVoucher()) && ($pickingExtendedInfo->getReturnVoucher() instanceof ResultReturnVoucher)) {
+                $voucherRequested = true;
+            }
+        } catch (Exception $e) {
+            $this->getResponse()->setBody($e->getMessage());
+        }
+
+        return $voucherRequested;
     }
 }
 

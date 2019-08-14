@@ -182,6 +182,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
             case 'index':
             case 'massRequest':
             case 'printLabel':
+            case 'printReturnVoucher':
             case 'requestCourier':
                 
 
@@ -936,6 +937,60 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         }
     }
 
+    public function printReturnVoucherAction() {
+        require_once Mage::getBaseDir('lib') . DS . 'SpeedyEPS' . DS . 'ver01' . DS . 'ParamPDF.class.php';
+
+        $orderId = $this->getRequest()->getParam('order_id');
+
+        $this->_hasPrinter = $this->getRequest()->getParam('has_printer');
+        $speedyData = Mage::getModel('speedyshippingmodule/saveorder')
+                ->getCollection()
+                ->addFilter('order_id', $orderId, 'eq')
+                ->load()
+                ->getFirstItem();
+        if (!$speedyData->getBolId()) {
+            return;
+        }
+
+        $paramPDF = new ParamPDF();
+
+        //If customer has configured that she has a printer, print a label
+        if ($this->_hasPrinter) {
+            $pickingParcels = $this->_speedyEPS->getPickingParcels((float)$speedyData->getBolId());
+
+            $ids = array();
+
+            foreach ($pickingParcels as $parcel) {
+                $ids[] = $parcel->getParcelId();
+            }
+
+            $paramPDF->setIds($ids);
+            $paramPDF->setType(ParamPDF::PARAM_PDF_TYPE_LBL);
+        }
+        //Otherwise print a regular bill of lading
+        else {
+            $paramPDF->setIds((float)$speedyData->getBolId());
+            $paramPDF->setType(30); // ParamPDF::PARAM_PDF_TYPE_VOUCHER
+        }
+        $paramPDF->setIncludeAutoPrintJS(TRUE);
+
+        $resultPDF = null;
+        try {
+            $resultPDF = $this->_speedyEPS->createPDF($paramPDF);
+
+            if (is_null($resultPDF)) {
+                throw new Exception($this->__("An error occured, while trying to create PDF"));
+            }
+
+            //Send output to browser
+
+            $this->getResponse()->setHeader("Content-type", "application/pdf");
+            $this->getResponse()->setBody($resultPDF);
+        } catch (Exception $e) {
+            $this->getResponse()->setBody($e->getMessage());
+        }
+    }
+
     /**
      * This method is used to cancel bill of lading if that is possible. For
      * example if a courier has been request that would not be possible.
@@ -1160,7 +1215,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         $picking = new ParamPicking();
 
         //DO NOT CHANGE THIS LINE
-        $picking->setClientSystemId(1307306202);
+        $picking->setClientSystemId(1307306211);
         $picking->setRef1($this->_orderID);
 
         $size = $this->getParcelSizes();
@@ -1280,7 +1335,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
                 if ($this->_isFreeShipping) {
                     $totalAmount = $this->_codAmount;
                 } else {
-                    $tablerates = Mage::getModel('speedyshippingmodule/carrier_tablerate')->getCollection()->setServiceIdFilter($this->_orderData->getServiceTypeId())->setTakeFromOfficeFilter($this->_orderData->getPickFromOffice())->setWeightFilter($totalWeight)->setTotalFilter($this->_codAmount)->setOrderField('weight')->setOrderField('order_total')->getData();
+                    $tablerates = Mage::getModel('speedyshippingmodule/carrier_tablerate')->getCollection()->setServiceIdFilter($this->_orderData->getServiceTypeId())->setTakeFromOfficeFilter($this->_orderData->getPickFromOffice())->setWeightFilter($totalWeight)->setTotalFilter($this->_codAmount)->setFixedTimeDeliveryFilter($this->_orderData->getFixedTime() ? 1 : 0)->setOrderField('weight')->setOrderField('order_total')->getData();
                     if ($tablerates && isset($tablerates[0])) {
                         $taxCalculator = Mage::helper('tax');
                         $shippingPrice = $taxCalculator->getShippingPrice((float)$tablerates[0]['price_without_vat'], true);
@@ -1315,6 +1370,14 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         // if abroad a fixed_pricing_enable == calculator || calculator_fixed
         if ($this->_orderData->getCountryId() && $this->_orderData->getCountryId() != 'BG' && $this->_orderData->getIsCod() && (Mage::getStoreConfig('carriers/speedyshippingmodule/fixed_pricing_enable') == 1 || $this->config->get('speedy_pricing') == 3)) {
             $picking->setIncludeShippingPriceInCod(true);
+        }
+
+        if (Mage::getStoreConfig('carriers/speedyshippingmodule/return_voucher')) {
+            $returnVoucher = new ParamReturnVoucher();
+            $returnVoucher->setServiceTypeId($this->_getReturnVoucherServiceTypeId($picking));
+            $returnVoucher->setPayerType(Mage::getStoreConfig('carriers/speedyshippingmodule/return_voucher_payer_type'));
+
+            $picking->setReturnVoucher($returnVoucher);
         }
 
         $resultBOL = null;
@@ -1605,6 +1668,67 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
                 return false;
             }
         }
+    }
+
+    public function checkReturnVoucherRequested($bol_id) {
+        $voucherRequested = false;
+
+        try {
+            $pickingExtendedInfo = $this->_speedyEPS->getPickingExtendedInfo($bol_id);
+
+            if (!is_null($pickingExtendedInfo->getReturnVoucher()) && ($pickingExtendedInfo->getReturnVoucher() instanceof ResultReturnVoucher)) {
+                $voucherRequested = true;
+            }
+        } catch (Exception $e) {
+            $this->getResponse()->setBody($e->getMessage());
+        }
+
+        return $voucherRequested;
+    }
+
+    protected function _getReturnVoucherServiceTypeId($picking) {
+        $services = array();
+        $returnVoucherServiceTypeId = null;
+
+        $sender = $picking->getSender();
+        $receiver = $picking->getReceiver();
+
+        try {
+            if (Mage::getStoreConfig('carriers/speedyshippingmodule/bring_to_office') && Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office')) {
+                $senderSiteId = null;
+                $senderOfficeId = Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office');
+            } else {
+                $senderData = $this->_speedyEPS->getClientById($sender->getClientId());
+                $senderSiteId = $resultClientData->getAddress()->getSiteId();
+                $senderOfficeId = null;
+            }
+
+            if ($receiver->getAddress()) {
+                $receiverSiteId = $receiver->getAddress()->getSiteId();
+                $receiverOfficeId = null;
+            } else {
+                $receiverSiteId = null;
+                $receiverOfficeId = $picking->getOfficeToBeCalledId();
+            }
+
+            // Reverse sender and receiver data
+            $listServices = $this->_speedyEPS->listServicesForSites(time(), $receiverSiteId, $senderSiteId, null, null, null, null, null, null, null, $receiverOfficeId, $senderOfficeId);
+
+            foreach($listServices as $listService) {
+                $services[] = $listService->getTypeId();
+            }
+
+            if (in_array(Mage::getStoreConfig('carriers/speedyshippingmodule/return_voucher_city_service_id'), $services)) {
+                $returnVoucherServiceTypeId = Mage::getStoreConfig('carriers/speedyshippingmodule/return_voucher_city_service_id');
+            } elseif (in_array(Mage::getStoreConfig('carriers/speedyshippingmodule/return_voucher_intercity_service_id'), $services)) {
+                $returnVoucherServiceTypeId = Mage::getStoreConfig('carriers/speedyshippingmodule/return_voucher_intercity_service_id');
+            }
+
+        } catch (Exception $e) {
+            $this->getResponse()->setBody($e->getMessage());
+        }
+
+        return $returnVoucherServiceTypeId;
     }
 
 }

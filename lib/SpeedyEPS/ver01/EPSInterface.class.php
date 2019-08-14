@@ -27,6 +27,7 @@ require_once 'ResultState.class.php';
 require_once 'ResultPickingInfo.class.php';
 require_once 'ResultClientInfo.class.php';
 require_once 'ResultAddressInfo.class.php';
+require_once 'ResultRoutingLabelInfo.class.php';
 
 require_once 'ResultPickingExtendedInfo.class.php';
 require_once 'ParamCalculation.class.php';
@@ -615,8 +616,10 @@ interface EPSInterface {
      * @param ParamLanguage $language Language
      * @throws ServerException Thrown in case communication with server has failed
      * @return array ResultOfficeEx List of offices
+     * @since 2.9.1
+     * @param integer $countryId signed 64-bit integer nullable Country ID
      */
-    public function listOfficesEx($sessionId, $name, $siteId, $language);
+    public function listOfficesEx($sessionId, $name, $siteId, $language, $countryId);
     
     /**
      * Returns deserialized address from serialized string address
@@ -730,6 +733,15 @@ interface EPSInterface {
      * @since 2.9.0
      */
     public function getPickingExtendedInfo($sessionId, $billOfLading);
+
+    /**
+     * Returns routing information for specified parcel number. 
+     * @param string $sessionId
+     * @param integer $parcelId  signed 64-bit
+     * @return List of ResultRoutingLabelInfo routing information for specified parcel number
+     * @since 3.0.0
+     */
+    public function getRoutingLabelInfo($sessionId, $parcelId);
 
 }
 ?>

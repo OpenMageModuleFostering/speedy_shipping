@@ -130,6 +130,14 @@ Mage_Adminhtml_Block_Widget_Grid {
             'filter' => false
         ));
 
+        $this->addColumn('view_print_voucher', array(
+            'header' => '',
+            'align' => 'center',
+            'index' => 'view_print_voucher',
+            'renderer' => 'speedyshippingmodule/adminhtml_requestcourier_renderer_viewprintvoucher',
+            'filter' => false
+        ));
+
         return parent::_prepareColumns();
     }
 

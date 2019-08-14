@@ -19,7 +19,13 @@ class Speedy_Speedyshipping_Block_Adminhtml_Billoflading extends Mage_Adminhtml_
      */
     protected $_printUrl = null;
     
-    
+        
+    /**
+     * The URL, used to print a return voucher
+     * @var type 
+     */
+    protected $_printReturnVoucher = null;
+
     /**
      *The URL, used to create bill of laging
      * @var type 
@@ -109,7 +115,12 @@ class Speedy_Speedyshipping_Block_Adminhtml_Billoflading extends Mage_Adminhtml_
             'order_id' => (int) $orderId,
             'shipment_id' => (int) $shipmentId,
             'has_printer' => $hasPrinter));
-        
+
+        $this->_printReturnVoucher = $this->getUrl('speedyshipping/print/printReturnVoucher', array(
+            'order_id' => (int) $orderId,
+            'shipment_id' => (int) $shipmentId,
+            'has_printer' => $hasPrinter));
+
         $this->_checkDateUrl = $this->getUrl('speedyshipping/print/checkDate', array(
             'order_id' => (int) $orderId,
             'shipment_id' => (int) $shipmentId));
@@ -192,6 +203,10 @@ class Speedy_Speedyshipping_Block_Adminhtml_Billoflading extends Mage_Adminhtml_
         return $this->_printUrl;
     }
     
+    public function getPrintReturnVoucher() {
+        return $this->_printReturnVoucher;
+    }
+
     public function getCheckDateUrl(){
        return  $this->_checkDateUrl;
     }
@@ -260,6 +275,30 @@ class Speedy_Speedyshipping_Block_Adminhtml_Billoflading extends Mage_Adminhtml_
                             'onclick' => $funcName
                         ))
                         ->toHtml();
+    }
+
+    public function getPrintReturnVoucherButton() {
+        $shipmentId = $this->getRequest()->getParam('shipment_id');
+        $shipment = Mage::getModel('sales/order_shipment')->load($shipmentId);
+        $this->_orderId = $shipment->getOrderId();
+
+        $returnVoucherRequested = Mage::helper('speedyshippingmodule')->checkReturnVoucherRequested($this->_speedyData->getBolId());
+
+        if ($returnVoucherRequested) {
+            $label = $this->__('Print return voucher');
+
+            $funcName = "popWin('" . $this->_printReturnVoucher . "')";
+
+            return $this->getLayout()
+                            ->createBlock('adminhtml/widget_button')
+                            ->setData(array(
+                                'label' => $label,
+                                'onclick' => $funcName
+                            ))
+                            ->toHtml();
+        }
+
+        return;
     }
 
     public function getHeaderText() {

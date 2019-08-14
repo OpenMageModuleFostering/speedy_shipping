@@ -5,6 +5,7 @@ require_once 'ResultOptionsBeforePayment.class.php';
 require_once 'ResultPackings.class.php';
 require_once 'ResultReturnVoucher.class.php';
 require_once 'ResultDeliveryInfo.class.php';
+require_once 'CODPayment.class.php';
 
 /**
  * Instances of this class are returned as a result of getPickingExtendedInfo

@@ -1135,13 +1135,14 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
 	/**
 	 * @see EPSInterface::listOfficesEx()
 	 */
-	public function listOfficesEx($sessionId, $name, $siteId, $language) {
+	public function listOfficesEx($sessionId, $name, $siteId, $language, $countryId) {
 		try {
        		$listOfficesExStdObject = new stdClass();
        		$listOfficesExStdObject->sessionId = $sessionId;
        		$listOfficesExStdObject->name      = $name;
        		$listOfficesExStdObject->siteId    = $siteId;
        		$listOfficesExStdObject->language  = $language;
+       		$listOfficesExStdObject->countryId = $countryId;
        		$response = parent::listOfficesEx($listOfficesExStdObject);
        		$arrListOfficesEx = array();
        		if (isset($response->return)) {
@@ -1457,6 +1458,29 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
             }
             return $arrResultPickingExtendedInfoStdObject;
 				*/
+				
+        } catch (SoapFault $sf) {
+            throw new ServerException($sf);
+        }
+    }  
+
+
+    /**
+     * @see EPSInterface::getRoutingLabelInfo()
+     */
+    public function getRoutingLabelInfo($sessionId, $parcelId) {
+   		try {
+            $getRoutingLabelInfoStdObject = new stdClass();
+            $getRoutingLabelInfoStdObject -> sessionId = $sessionId;
+            $getRoutingLabelInfoStdObject -> parcelId = $parcelId;
+				$response = parent::getRoutingLabelInfo($getRoutingLabelInfoStdObject);
+            
+            if (isset($response->return)) {
+                $ResultRoutingLabelInfo = new ResultRoutingLabelInfo($response->return);
+            } else {
+                $ResultRoutingLabelInfo = null;
+            }
+            return $ResultRoutingLabelInfo;
 				
         } catch (SoapFault $sf) {
             throw new ServerException($sf);

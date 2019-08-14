@@ -42,6 +42,18 @@ class ResultParcelInfoEx {
     private $_sizeDeclared;
 
     /**
+     * Foreign parcel number associated with this parcel
+     * @var signed string (nullable)
+     */
+    private $_foreignParcelNumber;
+
+    /**
+     * Packing ID (number)
+     * @var signed 64-bit integer (nullable)
+     */
+    private $_packId;
+
+    /**
      * Constructs new instance of stdClassResultParcelInfoEx from stdClass
      * @param stdClass $stdClassResultParcelInfoEx
      */
@@ -52,6 +64,8 @@ class ResultParcelInfoEx {
         $this->_weightDeclared = isset($stdClassResultParcelInfoEx->weightDeclared) ? $stdClassResultParcelInfoEx->weightDeclared : null;
         $this->_sizeMeasured = isset($stdClassResultParcelInfoEx->sizeMeasured) ? new Size($stdClassResultParcelInfoEx->sizeMeasured) : null;
         $this->_sizeDeclared = isset($stdClassResultParcelInfoEx->sizeDeclared) ? new Size($stdClassResultParcelInfoEx->sizeDeclared) : null;
+        $this->_foreignParcelNumber = isset($stdClassResultParcelInfoEx->foreignParcelNumber) ? $stdClassResultParcelInfoEx->foreignParcelNumber : null;
+        $this->_packId = isset($stdClassResultParcelInfoEx->packId) ? $stdClassResultParcelInfoEx->packId : null;
     }
 
     /**
@@ -100,6 +114,22 @@ class ResultParcelInfoEx {
      */
     public function getSizeDeclared() {
         return $this->_sizeDeclared;
+    }
+
+    /**
+     * Foreign parcel number associated with this parcel
+     * return string (nullable)
+     */
+    public function getForeignParcelNumber() {
+        return $this->_foreignParcelNumber;
+    }
+
+    /**
+     * Packing ID (number)
+     * return signed 64-bit integer (nullable)
+     */
+    public function getPackId() {
+        return $this->_packId;
     }
 
 

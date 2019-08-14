@@ -1416,7 +1416,8 @@ class Speedy_Speedyshipping_Model_Carrier_Shippingmethod extends Mage_Shipping_M
                             $handlingAmount = Mage::getStoreConfig('carriers/speedyshippingmodule/handlingCharge');
                             $total = $total + $taxCalculator->getShippingPrice($handlingAmount, FALSE);
                         } else if ($isFixed == 4) {
-                            $tablerates = Mage::getModel('speedyshippingmodule/carrier_tablerate')->getCollection()->setServiceIdFilter($method->getServiceTypeId())->setTakeFromOfficeFilter($this->_pickingData->takeFromOfficeId ? 1 : 0)->setWeightFilter($this->_pickingData->weightDeclared)->setTotalFilter($total)->setOrderField('weight')->setOrderField('order_total')->getData();
+                            $totals = Mage::getSingleton('checkout/session')->getQuote()->getTotals();
+                            $tablerates = Mage::getModel('speedyshippingmodule/carrier_tablerate')->getCollection()->setServiceIdFilter($method->getServiceTypeId())->setTakeFromOfficeFilter($this->_pickingData->takeFromOfficeId ? 1 : 0)->setWeightFilter($this->_pickingData->weightDeclared)->setTotalFilter($totals['subtotal']->getValue())->setFixedTimeDeliveryFilter($this->_pickingData->fixedTimeDelivery ? 1 : 0)->setOrderField('weight')->setOrderField('order_total')->getData();
                             if ($tablerates && isset($tablerates[0])) {
                                 $total = $tablerates[0]['price_without_vat'];
                             } else {

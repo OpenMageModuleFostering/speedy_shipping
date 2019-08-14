@@ -26,7 +26,7 @@ class ResultDeliveryInfo {
 	
 	/**
 	 * Constructs new instance of this class
-	 * @param $stdClassResultAddressString
+	 * @param $stdClassResultDeliveryInfo
 	 */
 	function __construct($stdClassResultDeliveryInfo) {
 		$this->_deliveryDate = isset($stdClassResultDeliveryInfo->deliveryDate) ? $stdClassResultDeliveryInfo->deliveryDate : null;

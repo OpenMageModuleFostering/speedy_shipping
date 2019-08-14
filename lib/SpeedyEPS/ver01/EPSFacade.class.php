@@ -848,10 +848,12 @@ class EPSFacade {
      * @throws ServerException Thrown in case communication with server has failed
      * @throws ClientException Thrown in case EPS interface implementation is not set
      * @return array ResultOfficeEx List of offices
+     * @since 2.9.1
+     * @param integer $countryId signed 64-bit integer nullable Country ID
      */
-    public function listOfficesEx($name, $siteId, $language = null) {
+    public function listOfficesEx($name, $siteId = null, $language = null, $countryId = null) {
     	$this->checkStateBeforeCall();
-    	return $this->_epsInterfaceImpl->listOfficesEx($this->getResultLogin(true)->getSessionId(), $name, $siteId, $language);
+    	return $this->_epsInterfaceImpl->listOfficesEx($this->getResultLogin(true)->getSessionId(), $name, $siteId, $language, $countryId);
     }
     
     /**
@@ -1010,6 +1012,17 @@ class EPSFacade {
     public function getPickingExtendedInfo($billOfLading) {
     	$this->checkStateBeforeCall();
         return $this->_epsInterfaceImpl->getPickingExtendedInfo($this->getResultLogin(true)->getSessionId(), $billOfLading);
+    } 
+
+    /**
+     * Returns routing information for specified parcel number. 
+     * @param integer $parcelId signed 64-bit
+     * @return resultRoutingLabelInfo routing information for specified parcel number.
+     * @since 3.0.0
+     */
+    public function getRoutingLabelInfo($parcelId) {
+    	$this->checkStateBeforeCall();
+        return $this->_epsInterfaceImpl->getRoutingLabelInfo($this->getResultLogin(true)->getSessionId(), $parcelId);
     } 
 }
 ?>

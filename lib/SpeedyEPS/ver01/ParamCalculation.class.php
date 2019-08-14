@@ -324,6 +324,14 @@ class ParamCalculation {
     private $_includeShippingPriceInCod;
 
     /**
+     * Check if specified office to be called is working. Default value - true.
+     * MANDATORY: NO
+     * @var boolean
+     * @since 2.9.4
+     */
+    private $_checkTBCOfficeWorkDay;
+
+    /**
      * Set the date for shipment pick-up (the "time" component is ignored).
      * Server defaults this value to "today" if it is not set
      * @param date $takingDate
@@ -906,6 +914,22 @@ class ParamCalculation {
     }
 
     /**
+     * Set Flag indicating if specified office to be called is working. Default value - true.
+     * @param boolean
+     */
+    public function setCheckTBCOfficeWorkDay($checkTBCOfficeWorkDay) {
+        $this->_checkTBCOfficeWorkDay = $checkTBCOfficeWorkDay;
+    }
+
+    /**
+     * Get Flag indicating if specified office to be called is working. Default value - true.
+     * @return boolean
+     */
+    public function getCheckTBCOfficeWorkDay() {
+        return $this->_checkTBCOfficeWorkDay;
+    }
+
+    /**
      * Return standard class from this class
      * @return stdClass
      */
@@ -956,6 +980,7 @@ class ParamCalculation {
         }
         $stdClass->parcels                  = $arrStdClassParamParcelInfo;
         $stdClass->includeShippingPriceInCod= $this->_includeShippingPriceInCod;
+        $stdClass->checkTBCOfficeWorkDay    = $this->_checkTBCOfficeWorkDay;
         
         return $stdClass;
     }
