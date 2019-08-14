@@ -216,12 +216,11 @@
                             <label>default_weight_per_item</label>
                             <comment></comment>
                             <frontend_type>text</frontend_type>
-                            <validate>validate-number validate-zero-or-greater</validate>
+                            <validate>required-entry validate-number validate-zero-or-greater</validate>
                             <sort_order>16</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <validate>required-entry</validate>
                         </default_weight>
                         <has_label_printer translate="label comment">
                             <label>label_printer</label>
@@ -296,7 +295,6 @@
                         <free_shipping_subtotal translate="label">
                             <label>minimum_order_amount_for_freeshipping</label>
                             <frontend_type>text</frontend_type>
-                            <validate>validate-number</validate>
                             <depends>
                                 <free_shipping_enable>1</free_shipping_enable>
                             </depends>
