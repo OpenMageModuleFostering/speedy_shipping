@@ -1215,7 +1215,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         $picking = new ParamPicking();
 
         //DO NOT CHANGE THIS LINE
-        $picking->setClientSystemId(1307306212);
+        $picking->setClientSystemId(1307306213);
         $picking->setRef1($this->_orderID);
 
         $size = $this->getParcelSizes();
@@ -1674,7 +1674,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         $voucherRequested = false;
 
         try {
-            $pickingExtendedInfo = $this->_speedyEPS->getPickingExtendedInfo($bol_id);
+            $pickingExtendedInfo = $this->_speedyEPS->getPickingExtendedInfo((float)$bol_id);
 
             if (!is_null($pickingExtendedInfo->getReturnVoucher()) && ($pickingExtendedInfo->getReturnVoucher() instanceof ResultReturnVoucher)) {
                 $voucherRequested = true;

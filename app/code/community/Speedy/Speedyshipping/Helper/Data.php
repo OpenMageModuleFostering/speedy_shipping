@@ -58,7 +58,7 @@ class Speedy_Speedyshipping_Helper_Data extends Mage_Core_Helper_Abstract {
         $voucherRequested = false;
 
         try {
-            $pickingExtendedInfo = $this->_speedyEPS->getPickingExtendedInfo($bol_id);
+            $pickingExtendedInfo = $this->_speedyEPS->getPickingExtendedInfo((float)$bol_id);
 
             if (!is_null($pickingExtendedInfo->getReturnVoucher()) && ($pickingExtendedInfo->getReturnVoucher() instanceof ResultReturnVoucher)) {
                 $voucherRequested = true;
