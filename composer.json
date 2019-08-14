@@ -3,11 +3,11 @@
     "type": "magento-module",
     "license": "Open-Software-License-(OSL-3.0)",
     "homepage": "",
-    "description": "Various functional improvements and bug fixes.",
+    "description": "Version 1.1.2",
     "authors": [
     {
         "name": "Speedy JSC",
-        "email": "evgeni@omg-m.com"
+        "email": "magento@speedy.bg"
     }
 ],
     "suggest": {
