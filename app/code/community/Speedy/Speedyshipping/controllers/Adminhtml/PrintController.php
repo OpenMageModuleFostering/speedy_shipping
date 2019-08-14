@@ -1153,7 +1153,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         $picking = new ParamPicking();
 
         //DO NOT CHANGE THIS LINE
-        $picking->setClientSystemId(1307306130);
+        $picking->setClientSystemId(1307306131);
         $picking->setRef1($this->_orderID);
 
         $size = $this->getParcelSizes();

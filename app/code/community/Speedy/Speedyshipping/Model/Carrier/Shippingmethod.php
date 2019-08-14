@@ -145,7 +145,7 @@ class Speedy_Speedyshipping_Model_Carrier_Shippingmethod extends Mage_Shipping_M
     public function collectRates(Mage_Shipping_Model_Rate_Request $request) {
         // skip if not enabled
 
-        if (!Mage::getStoreConfig('carriers/' . $this->_code . '/active') || !Mage::getSingleton('checkout/session')->hasQuote()) {
+        if (!Mage::getStoreConfig('carriers/' . $this->_code . '/active') || (!Mage::getSingleton('checkout/session')->hasQuote() && !(Mage::app()->getStore()->isAdmin() && Mage::getDesign()->getArea() == 'adminhtml'))) {
             return false;
         }
 
