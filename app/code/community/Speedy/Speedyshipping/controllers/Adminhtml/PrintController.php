@@ -544,7 +544,8 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
             $senderSiteId = null;
             $senderOfficeId = Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office');
         } else {
-            $senderSiteId = $this->_senderData->getAddress()->getSiteId();
+            $resultClientData = $this->_speedyEPS->getClientById($this->_speedyEPS->getResultLogin()->getClientId());
+            $senderSiteId = $resultClientData->getAddress()->getSiteId();
             $senderOfficeId = null;
         }
 
@@ -655,7 +656,8 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
             $senderSiteId = null;
             $senderOfficeId = Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office');
         } else {
-            $senderSiteId = $this->_senderData->getAddress()->getSiteId();
+            $resultClientData = $this->_speedyEPS->getClientById($this->_speedyEPS->getResultLogin()->getClientId());
+            $senderSiteId = $resultClientData->getAddress()->getSiteId();
             $senderOfficeId = null;
         }
 
@@ -1151,7 +1153,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         $picking = new ParamPicking();
 
         //DO NOT CHANGE THIS LINE
-        $picking->setClientSystemId(1307306133);
+        $picking->setClientSystemId(1307306134);
         $picking->setRef1($this->_orderID);
 
         $size = $this->getParcelSizes();
