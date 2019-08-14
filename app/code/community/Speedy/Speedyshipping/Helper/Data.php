@@ -64,7 +64,7 @@ class Speedy_Speedyshipping_Helper_Data extends Mage_Core_Helper_Abstract {
                 $voucherRequested = true;
             }
         } catch (Exception $e) {
-            $this->getResponse()->setBody($e->getMessage());
+            throw new Exception($se->getMessage());
         }
 
         return $voucherRequested;
