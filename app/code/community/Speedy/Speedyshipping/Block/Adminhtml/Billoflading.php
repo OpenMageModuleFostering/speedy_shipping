@@ -77,6 +77,8 @@ class Speedy_Speedyshipping_Block_Adminhtml_Billoflading extends Mage_Adminhtml_
     
     
     protected $_optionsBeforePayment = null;
+
+    protected $_parcelsCount = null;
     
     
     /**
@@ -138,6 +140,12 @@ class Speedy_Speedyshipping_Block_Adminhtml_Billoflading extends Mage_Adminhtml_
             $this->_optionsBeforePayment = $this->_speedyData->getOptionsBeforePayment();
         } else {
             $this->_optionsBeforePayment = Mage::getStoreConfig('carriers/speedyshippingmodule/options_before_payment');
+        }
+
+        if ($this->_speedyData->getParcelsCount()) {
+            $this->_parcelsCount = $this->_speedyData->getParcelsCount();
+        } else {
+            $this->_parcelsCount = 1;
         }
 
         $order = Mage::getModel('sales/order')->load($orderId);

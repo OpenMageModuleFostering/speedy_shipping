@@ -13,6 +13,12 @@
     <?php endif; ?>
 <?php endif; ?>
 
+<?php if ($this->_parcelsCount): ?>
+        var parcelsCount = <?php echo $this->_parcelsCount; ?>;
+<?php else: ?>
+        var parcelsCount = "";
+<?php endif; ?>
+
     function getAllElementsWithAttributeValue(attribute, value)
     {
         var matchingElements = [];
@@ -122,6 +128,11 @@ document.getElementById('shipment_tracking_info').style.display = 'none';
     </div>
     <?php endif; ?>
 
+    <div id="speedyParcelsCount" style="margin: 5px 15px; ">
+        <span><?php echo $this->__('parcels_count') ?></span>
+        <input type="text" name="speedy_parcels_count" id="speedy_parcels_count" value="<?php echo $this->_parcelsCount; ?>" />
+    </div>
+
     <script>
         var baseRef = document.getElementById('packaging_window').getElementsByClassName('entry-edit')[0];
         var packButtons = baseRef.getElementsByClassName('a-right')[0];
@@ -129,6 +140,7 @@ document.getElementById('shipment_tracking_info').style.display = 'none';
         baseRef.insertBefore(document.getElementById('speedyOptionsBeforePayment'), packButtons);
         <?php endif; ?>
         baseRef.insertBefore(document.getElementById('speedyDeferredDays'), packButtons);
+        baseRef.insertBefore(document.getElementById('speedyParcelsCount'), packButtons);
     </script>
     <script>
 
@@ -153,6 +165,7 @@ document.getElementById('shipment_tracking_info').style.display = 'none';
                         new Ajax.Request("<?php echo $this->getCheckDateUrl(); ?>", {
                             onSuccess: function(transport) {
                                 var response = transport.responseText;
+                                parcelsCount = $F('speedy_parcels_count');
                                 if (response.isJSON()) {
                                     response = response.evalJSON();
                                     if (response.error) {
@@ -164,6 +177,7 @@ document.getElementById('shipment_tracking_info').style.display = 'none';
                                             <?php if (!$this->_isAbroad): ?>
                                             packaging.paramsCreateLabelRequest['options_before_payment'] = optionsBeforePayment;
                                             <?php endif; ?>
+                                            packaging.paramsCreateLabelRequest['parcels_count'] = parcelsCount;
                                             magentoCallback();
                                         }
                                     } else if (response.ok) {
@@ -172,6 +186,7 @@ document.getElementById('shipment_tracking_info').style.display = 'none';
                                         <?php if (!$this->_isAbroad): ?>
                                         packaging.paramsCreateLabelRequest['options_before_payment'] = optionsBeforePayment;
                                         <?php endif; ?>
+                                        packaging.paramsCreateLabelRequest['parcels_count'] = parcelsCount;
                                         magentoCallback();
                                     }
                                 }

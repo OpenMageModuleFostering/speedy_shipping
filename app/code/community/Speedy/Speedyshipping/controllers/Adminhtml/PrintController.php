@@ -150,6 +150,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
     protected $_takingTime = null;
     protected $_deferredDays = null;
     protected $_optionsBeforePayment = null;
+    protected $_parcelsCount = null;
 
     public function __construct(Zend_Controller_Request_Abstract $request, Zend_Controller_Response_Abstract $response, array $invokeArgs = array()) {
 
@@ -742,6 +743,8 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
 
         $this->_optionsBeforePayment = $this->getRequest()->getParam('options_before_payment');
 
+        $this->_parcelsCount = $this->getRequest()->getParam('parcels_count');
+
         /**
          * Setup picking data
          */
@@ -1157,7 +1160,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         $picking = new ParamPicking();
 
         //DO NOT CHANGE THIS LINE
-        $picking->setClientSystemId(1307306201);
+        $picking->setClientSystemId(1307306202);
         $picking->setRef1($this->_orderID);
 
         $size = $this->getParcelSizes();
@@ -1191,7 +1194,8 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         } else {
             $picking->setWillBringToOffice(null); // Офис, в който подателя ще достави пратката. Ако е null, куриер ще я вземе от адреса на подателя
         }
-        $picking->setParcelsCount(count($this->_packages));
+
+        $picking->setParcelsCount($this->_parcelsCount);
         $picking->setWeightDeclared($totalWeight);
         $picking->setContents('поръчка: ' . $this->_orderID);
 

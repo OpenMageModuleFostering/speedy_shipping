@@ -622,8 +622,7 @@ class Speedy_Speedyshipping_Model_Carrier_Shippingmethod extends Mage_Shipping_M
             $pickingData->takeFromOfficeId = null;
         }
 
-
-        $pickingData->parcelsCount = $totalItems; // Брой пакети
+        $pickingData->parcelsCount = 1; // Брой пакети
         $pickingData->documents = Mage::getStoreConfig('carriers/speedyshippingmodule/isDocuments');
         $pickingData->palletized = false; // Флаг дали пратката се състои от палети
 
