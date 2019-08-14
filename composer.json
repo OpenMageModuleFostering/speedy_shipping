@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/Speedy_Shipping",
+    "type": "magento-module",
+    "license": "Open-Software-License-(OSL-3.0)",
+    "homepage": "",
+    "description": "Initial release",
+    "authors": [
+    {
+        "name": "Speedy",
+        "email": "evgeni@omg-m.com"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}
