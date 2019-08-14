@@ -96,6 +96,16 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                             <can_be_empty>1</can_be_empty>
+                            <comment>
+                                <![CDATA[
+                                    <style>
+                                        #carriers_speedyshippingmodule_allowed_methods,
+                                        #carriers_speedyshippingmodule_free_method_intercity,
+                                        #carriers_speedyshippingmodule_free_method_city,
+                                        #carriers_speedyshippingmodule_free_method_international { width: 320px; }
+                                    </style>
+                                ]]>
+                            </comment>
                         </allowed_methods>
                         
                         <fixed_pricing_enable translate="label">
@@ -110,7 +120,6 @@
                         </fixed_pricing_enable>
                         <fixedPrice translate="label">
                             <label>fixed_price_for_shipping_exclvat</label>
-                            <sort_order></sort_order>
                             <depends>
                                 <fixed_pricing_enable>2</fixed_pricing_enable> 
                             </depends>
@@ -122,7 +131,6 @@
                         </fixedPrice>
                         <handlingCharge translate="label">
                             <label>handling_charge_value</label>
-                            <sort_order></sort_order>
                             <depends>
                                 <fixed_pricing_enable>3</fixed_pricing_enable> 
                             </depends>
@@ -132,6 +140,19 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </handlingCharge>
+                        <tableRate translate="label">
+                            <label>table_rate</label>
+                            <comment>csv_format</comment>
+                            <frontend_type>import</frontend_type>
+                            <backend_model>speedyshippingmodule/carrier_source_tablerate</backend_model>
+                            <depends>
+                                <fixed_pricing_enable>4</fixed_pricing_enable> 
+                            </depends>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </tableRate>
                         <!---<deferredDays translate="label">
                             <label>Брой дни за отместване на датата на доставка</label>
                             <sort_order></sort_order>
@@ -154,6 +175,16 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </speedyTakingtimeOffset>
+                        <invoice_courier_sevice_as_text translate="label">
+                            <label>invoice_courier_sevice_as_text</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>15</sort_order>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment>invoice_courier_sevice_as_text_description</comment>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </invoice_courier_sevice_as_text>
                         <!--<istest translate="label">
                             <label>Sandbox</label>
                             <frontend_type>select</frontend_type>
@@ -173,6 +204,27 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </default_packing>
+                        <money_transfer translate="label">
+                            <label>money_transfer</label>
+                            <comment>money_transfer_description</comment>
+                            <frontend_type>select</frontend_type>
+                            <frontend_model>speedyshippingmodule/adminhtml_system_config_form_moneytransfer</frontend_model>
+                            <sort_order>16</sort_order>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <backend_model>speedyshippingmodule/carrier_source_moneytransfer</backend_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </money_transfer>
+                        <options_before_payment translate="label">
+                            <label>options_before_payment</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>speedyshippingmodule/carrier_source_beforepayment</source_model>
+                            <sort_order>16</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </options_before_payment>
                         <back_documents translate="label">
                             <label>back_document_request</label>
                             <frontend_type>select</frontend_type>
@@ -287,7 +339,7 @@
                             <label>activate_free_shipping</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_enabledisable</source_model>
-                            <sort_order>22</sort_order>
+                            <sort_order>30</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -299,7 +351,7 @@
                                 <free_shipping_enable>1</free_shipping_enable>
                             </depends>
                             <validate>validate-number validate-zero-or-greater</validate>
-                            <sort_order>23</sort_order>
+                            <sort_order>31</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -312,7 +364,7 @@
                                 <free_shipping_enable>1</free_shipping_enable>
                             </depends>
                             <source_model>speedyshippingmodule/carrier_source_method</source_model>
-                            <sort_order>24</sort_order>
+                            <sort_order>32</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -325,15 +377,28 @@
                                 <free_shipping_enable>1</free_shipping_enable>
                             </depends>
                             <source_model>speedyshippingmodule/carrier_source_method</source_model>
-                            <sort_order>24</sort_order>
+                            <sort_order>33</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </free_method_intercity>
+                        <free_method_international translate="label">
+                            <label>free_international_service</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <frontend_class>free-method</frontend_class>
+                            <depends>
+                                <free_shipping_enable>1</free_shipping_enable>
+                            </depends>
+                            <source_model>speedyshippingmodule/carrier_source_method</source_model>
+                            <sort_order>34</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </free_method_international>
                         <isDocuments translate="label">
                             <label>does_contain_documents</label>
                             <frontend_type>select</frontend_type>
-                            <sort_order>25</sort_order>
+                            <sort_order>40</sort_order>
                             <frontend_class>shipping-skip-hide</frontend_class>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <show_in_default>1</show_in_default>
@@ -343,7 +408,7 @@
                         <add_jquery translate="label">
                             <label>add_jquery</label>
                             <frontend_type>select</frontend_type>
-                            <sort_order>26</sort_order>
+                            <sort_order>50</sort_order>
                             <frontend_class>shipping-skip-hide</frontend_class>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <show_in_default>1</show_in_default>
@@ -353,7 +418,7 @@
                         <add_jquery_ui translate="label">
                             <label>add_jquery_ui</label>
                             <frontend_type>select</frontend_type>
-                            <sort_order>26</sort_order>
+                            <sort_order>51</sort_order>
                             <frontend_class>shipping-skip-hide</frontend_class>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <show_in_default>1</show_in_default>
@@ -363,7 +428,7 @@
                         <sallowspecific translate="label">
                             <label>Ship to applicable countries</label>
                             <frontend_type>select</frontend_type>
-                            <sort_order>27</sort_order>
+                            <sort_order>60</sort_order>
                             <frontend_class>shipping-applicable-country</frontend_class>
                             <source_model>adminhtml/system_config_source_shipping_allspecificcountries</source_model>
                             <show_in_default>1</show_in_default>
@@ -373,7 +438,7 @@
                         <specificcountry translate="label">
                             <label>Ship to Specific countries</label>
                             <frontend_type>multiselect</frontend_type>
-                            <sort_order>28</sort_order>
+                            <sort_order>61</sort_order>
                             <source_model>adminhtml/system_config_source_country</source_model>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -382,7 +447,7 @@
                         <specificerrmsg translate="label">
                             <label>Displayed Error Message</label>
                             <frontend_type>textarea</frontend_type>
-                            <sort_order>29</sort_order>
+                            <sort_order>62</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -390,7 +455,7 @@
                         <add_fixed_hour translate="label">
                             <label>fixed_hour_delivery</label>
                             <frontend_type>select</frontend_type>
-                            <sort_order>30</sort_order>
+                            <sort_order>70</sort_order>
                             <frontend_class>shipping-skip-hide</frontend_class>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <comment>fixed_hour_comment_label</comment>
@@ -401,7 +466,7 @@
                         <sort_order translate="label">
                             <label>Sort Order</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>35</sort_order>
+                            <sort_order>80</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>

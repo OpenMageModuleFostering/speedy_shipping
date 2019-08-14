@@ -316,6 +316,14 @@ class ParamCalculation {
     private $_senderPostCode;
 
     /**
+     * Flag indicating whether the shipping price should be included into the cash on delivery price.
+     * MANDATORY: NO
+     * @var boolean
+     * @since 2.9.0
+     */
+    private $_includeShippingPriceInCod;
+
+    /**
      * Set the date for shipment pick-up (the "time" component is ignored).
      * Server defaults this value to "today" if it is not set
      * @param date $takingDate
@@ -882,6 +890,22 @@ class ParamCalculation {
     }
 
     /**
+     * Set Flag indicating whether the shipping price should be included into the cash on delivery price.
+     * @param boolean
+     */
+    public function setIncludeShippingPriceInCod($includeShippingPriceInCod) {
+        $this->_includeShippingPriceInCod = $includeShippingPriceInCod;
+    }
+
+    /**
+     * Get Flag indicating whether the shipping price should be included into the cash on delivery price.
+     * @return boolean
+     */
+    public function getIncludeShippingPriceInCod() {
+        return $this->_includeShippingPriceInCod;
+    }
+
+    /**
      * Return standard class from this class
      * @return stdClass
      */
@@ -931,6 +955,7 @@ class ParamCalculation {
             }
         }
         $stdClass->parcels                  = $arrStdClassParamParcelInfo;
+        $stdClass->includeShippingPriceInCod= $this->_includeShippingPriceInCod;
         
         return $stdClass;
     }

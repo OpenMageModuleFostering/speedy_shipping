@@ -42,9 +42,12 @@
                             </li>
                         <?php endif; ?>
                         <li class="wide">
-                            <div class="field" style="width: 100%">
-                                <div id="speedyBillingError" style="display: none" class="validation-failed">
-                                    <?php echo $this->__("valid_address_desc") ?>
+                            <div class="field">
+                                <label for="billing:country_id" class="required"><em>*</em><?php echo $this->__('Country') ?></label>
+                                <input type="hidden" id="billing:speedy_country_id" name="billing[speedy_country_id]" value="" />
+                                <input type="hidden" id="billing:active_currency_code" name="billing[active_currency_code]" value="" />
+                                <div class="input-box">
+                                    <?php echo $this->getCountryHtmlSelect('billing') ?>
                                 </div>
                             </div>
                         </li>
@@ -56,7 +59,32 @@
                                 </div>
                             </div>
                         </li>
-                        <li class="fields">
+                        <li class="wide">
+                            <div class="field">
+                                <label for="billing:postcode" class="required"><em>*</em><?php echo $this->__('Zip/Postal Code') ?></label>
+                                <div class="input-box">
+                                    <input type="text" title="<?php echo $this->__('Zip/Postal Code') ?>" name="billing[postcode]" id="billing:postcode" value="<?php echo $this->escapeHtml($this->getAddress()->getPostcode()) ?>" class="input-text validate-zip-international" />
+                                </div>
+                            </div>
+                        </li>
+                        <li class="wide">
+                            <div class="field">
+                                <label for="billing:region" class="required"><em>*</em><?php echo $this->__('State/Province') ?></label>
+                                <div class="input-box">
+                                    <select id="billing:region_id" name="billing[region_id]" title="<?php echo $this->__('State/Province') ?>" style="display:none;">
+                                        <option value=""><?php echo $this->__('Please select region, state or province') ?></option>
+                                    </select>
+                                    <script type="text/javascript">
+                                        //<![CDATA[
+                                        $('billing:region_id').setAttribute('defaultValue', "<?php echo $this->getAddress()->getRegionId() ?>");
+                                        //]]>
+                                    </script>
+                                    <input type="text" id="billing:region" name="billing[region]" value="<?php echo $this->escapeHtml($this->getAddress()->getRegion()) ?>"  title="<?php echo $this->__('State/Province') ?>" class="input-text" />
+                                    <input type="hidden" id="billing:speedy_state_id" name="billing[speedy_state_id]" value="" />
+                                </div>
+                            </div>
+                        </li>
+                        <li class="fields bg_field">
                             <label for=""><?php echo $this->__("Choose Speedy office") ?></label>
                             <div class="field">
                                 <?php if ($this->getAddress()->getSpeedyOfficeId()): ?>
@@ -69,7 +97,7 @@
                         <li>
                             <input type="hidden" name="billing[speedy_site_id]" id="billing:speedy_site_id" value="<?php echo $this->escapeHtml($this->getAddress()->getSpeedySiteId()) ?>" />
                         </li>
-                        <li>
+                        <li class="bg_field">
 
                             <?php if ($this->getAddress()->getSpeedyOfficeId()): ?>
                                 <div id="billing:speedy_office_address">
@@ -108,7 +136,7 @@
 
                                     <?php endif; ?>
                                     <ul>
-                                        <li class="wide">
+                                        <li class="wide bg_field">
                                             <div class="field">
 
                                                 <label for="speedy_quarter_name"><?php echo $this->__('Quarter') ?></label>
@@ -121,18 +149,24 @@
                                         </li>
                                         <?php $_streetValidationClass = $this->helper('customer/address')->getAttributeValidationClass('street'); ?>
                                         <li class="wide">
-                                            <label for="speedy_street"><?php echo $this->__('speedy street name');  ?></label>
-                                            <div class="input-box">
+                                            <label for="speedy_street" class="bg_field"><?php echo $this->__('speedy street name');  ?></label>
+                                            <div class="input-box bg_field">
                                                 <input type="text" name="billing[speedy_street_name]" value="<?php echo $this->escapeHtml($this->getAddress()->getSpeedyStreetName()) ?>" id="billing:speedy_street" class="input-text"  />
                                             </div>
-                                            <div class="street_holder" style="display: none">
-                                                <label for="billing:street1" class="required"><em>*</em><?php echo $this->__('Address') ?></label>
+                                            <div class="street_holder non_bg_field" style="display: none">
+                                                <label for="billing:street1" class="required"><em>*</em><?php echo $this->__('Street Address') ?></label>
                                                 <div class="input-box">
-                                                    <input type="text" title="<?php echo $this->__('Street Address') ?>" name="billing[street][]" id="billing:street1" value="<?php echo $this->escapeHtml($this->getAddress()->getStreet(1)) ?>" class="input-text <?php echo $_streetValidationClass ?>" />
+                                                    <input type="text" title="<?php echo $this->__('Street Address') ?>" name="billing[street][]" id="billing:street1" value="<?php echo $this->escapeHtml($this->getAddress()->getStreet(1)) ?>" class="input-text required-entry" />
+                                                </div>
+                                            </div>
+                                            <div class="street_holder non_bg_field" style="display: none">
+                                                <label for="billing:street2"><?php echo $this->__('Street Address 2') ?></label>
+                                                <div class="input-box">
+                                                    <input type="text" title="<?php echo $this->__('Street Address 2') ?>" name="billing[street][]" id="billing:street2" value="<?php echo $this->escapeHtml($this->getAddress()->getStreet(2)) ?>" class="input-text" />
                                                 </div>
                                             </div>
                                         </li>
-                                        <li class="fields">
+                                        <li class="fields bg_field">
 
                                             <div class="field">
                                                 <label  for="speedy_street_number"><?php echo $this->__('Street Number') ?></label>
@@ -149,7 +183,7 @@
 
 
 
-                                        <li class="fields">
+                                        <li class="fields bg_field">
                                             <div class="field">
                                                 <label for=""><?php echo $this->__("Entrance") ?></label>
                                                 <div class="input-box">
@@ -161,14 +195,14 @@
                                                     <input type="text" name="billing[speedy_floor]" id="billing:speedy_floor" class="input-text" value="<?php echo $this->htmlEscape($this->getAddress()->getSpeedyFloor()) ?>"/></div>
                                             </div>
                                         </li>
-                                        <li class="fields">
+                                        <li class="fields bg_field">
                                             <div class="field">
                                                 <label for=""><?php echo $this->__("Apartment") ?></label>
                                                 <div class="input-box">
                                                     <input type="text" name="billing[speedy_apartment]" id="billing:speedy_apartment" class="input-text" value="<?php echo $this->htmlEscape($this->getAddress()->getSpeedyApartment()) ?>" /></div>
                                             </div>
                                         </li>
-                                        <li class="wide">
+                                        <li class="wide bg_field">
                                             <div class="field">
                                                 <label for=""><?php echo $this->__("Address note") ?></label>
                                                 <div class="input-box">
@@ -178,48 +212,21 @@
                                         </li>
                                     </ul>
                                 </div>
-                                <li class="fields">
-                                    <div class="field">
-                                        <label for="billing:postcode" class="required"><em>*</em><?php echo $this->__('Zip/Postal Code') ?></label>
-                                        <div class="input-box">
-                                            <input type="text" title="<?php echo $this->__('Zip/Postal Code') ?>" name="billing[postcode]" id="billing:postcode" value="<?php echo $this->escapeHtml($this->getAddress()->getPostcode()) ?>" class="input-text validate-zip-international <?php echo $this->helper('customer/address')->getAttributeValidationClass('postcode') ?>" />
-                                        </div>
+                            </li>
+                            <li class="fields">
+                                <div class="field">
+                                    <label for="billing:telephone" class="required"><em>*</em><?php echo $this->__('Telephone') ?></label>
+                                    <div class="input-box">
+                                        <input type="text" name="billing[telephone]" value="<?php echo $this->escapeHtml($this->getAddress()->getTelephone()) ?>" title="<?php echo $this->__('Telephone') ?>" class="input-text <?php echo $this->helper('customer/address')->getAttributeValidationClass('telephone') ?>" id="billing:telephone" />
                                     </div>
-                                    <div class="field">
-                                        <label for="billing:region_id" class="required"><em>*</em><?php echo $this->__('State/Province') ?></label>
-                                        <div class="input-box">
-                                            <select id="billing:region_id" name="billing[region_id]" title="<?php echo $this->__('State/Province') ?>" class="validate-select" style="display:none;">
-                                                <option value=""><?php echo $this->__('Please select region, state or province') ?></option>
-                                            </select>
-                                            <script type="text/javascript">
-                                                //<![CDATA[
-                                                $('billing:region_id').setAttribute('defaultValue', "<?php echo $this->getAddress()->getRegionId() ?>");
-                                                //]]>
-                                            </script>
-                                            <input type="text" id="billing:region" name="billing[region]" value="<?php echo $this->escapeHtml($this->getAddress()->getRegion()) ?>"  title="<?php echo $this->__('State/Province') ?>" class="input-text <?php echo $this->helper('customer/address')->getAttributeValidationClass('region') ?>" style="display:none;" />
-                                        </div>
+                                </div>
+                                <div class="field">
+                                    <label for="billing:fax"><?php echo $this->__('Fax') ?></label>
+                                    <div class="input-box">
+                                        <input type="text" name="billing[fax]" value="<?php echo $this->escapeHtml($this->getAddress()->getFax()) ?>" title="<?php echo $this->__('Fax') ?>" class="input-text <?php echo $this->helper('customer/address')->getAttributeValidationClass('fax') ?>" id="billing:fax" />
                                     </div>
-                                    <div class="field">
-                                        <label for="billing:country_id" class="required"><em>*</em><?php echo $this->__('Country') ?></label>
-                                        <div class="input-box">
-                                            <?php echo $this->getCountryHtmlSelect('billing') ?>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="fields">
-                                    <div class="field">
-                                        <label for="billing:telephone" class="required"><em>*</em><?php echo $this->__('Telephone') ?></label>
-                                        <div class="input-box">
-                                            <input type="text" name="billing[telephone]" value="<?php echo $this->escapeHtml($this->getAddress()->getTelephone()) ?>" title="<?php echo $this->__('Telephone') ?>" class="input-text <?php echo $this->helper('customer/address')->getAttributeValidationClass('telephone') ?>" id="billing:telephone" />
-                                        </div>
-                                    </div>
-                                    <div class="field">
-                                        <label for="billing:fax"><?php echo $this->__('Fax') ?></label>
-                                        <div class="input-box">
-                                            <input type="text" name="billing[fax]" value="<?php echo $this->escapeHtml($this->getAddress()->getFax()) ?>" title="<?php echo $this->__('Fax') ?>" class="input-text <?php echo $this->helper('customer/address')->getAttributeValidationClass('fax') ?>" id="billing:fax" />
-                                        </div>
-                                    </div>
-                                </li>
+                                </div>
+                            </li>
 
                                 <?php if (!$this->isCustomerLoggedIn()): ?>
 
@@ -287,6 +294,14 @@
                                     </li>
                                 <?php endif; ?>
 
+                                <li class="wide">
+                                    <div class="field" style="width: 100%">
+                                        <div id="speedyBillingError" style="display: none" class="validation-failed">
+                                            <?php echo $this->__("valid_address_desc") ?>
+                                        </div>
+                                    </div>
+                                </li>
+
                                 <?php if (!$this->canShip()): ?>
                                     <input type="hidden" name="billing[use_for_shipping]" value="1" />
                                 <?php endif; ?>
@@ -310,13 +325,25 @@
                         //billingForm.setElementsRelation('billing:country_id', 'billing:region', '<?php echo $this->getUrl('directory/json/childRegion') ?>', '<?php echo $this->__('Select State/Province...') ?>');
                         $('billing-address-select') && billing.newAddress(!$('billing-address-select').value);
 
-                        var billingRegionUpdater = new RegionUpdater('billing:country_id', 'billing:region', 'billing:region_id', <?php echo $this->helper('directory')->getRegionJson() ?>, undefined, 'billing:postcode');
+                        <?php 
+                        $json_regions = json_decode($this->helper('directory')->getRegionJson());
+                        if ($json_regions) {
+                            $regionConfig = new StdClass();
+                            $regionConfig->config = $json_regions->config;
+                            $new_region_objects = json_encode($regionConfig);
+                        } else {
+                            $new_region_objects = $this->helper('directory')->getRegionJson();
+                        }
+                        ?>
+
+                        var billingRegionUpdater = new RegionUpdater('billing:country_id', 'billing:region', 'billing:region_id', <?php echo $new_region_objects ?>, undefined, 'billing:postcode');
                         //]]>
                         var isNewBillingAddress = false;
 
                         //This variable is necessary in the adjecent shipping address block
                         //var shippingSiteNomenclature = null;
                         var isFullNomenclature = 0;
+                        var isFullSiteNomenclature = 0;
                         $j('document').ready(function() {
 
 
@@ -359,7 +386,13 @@
                                 var evtTarget = $j(evt.target);
                                 if (evtTarget.attr('id') == 'billing:city') {
 
-                                    if (siteName != evtTarget.val()) {
+                                    if (isFullSiteNomenclature == 'FULL' && $j('#billing\\:speedy_site_id').val() == false) {
+                                        evtTarget.val('')
+                                        $j('#billing\\:speedy_quarter_id').val('');
+                                        $j('#billing\\:postcode').val('');
+                                        $j('#billing\\:region').val('')
+                                        updateForm();
+                                    } else if (siteName != evtTarget.val() && isFullSiteNomenclature == 'FULL') {
 
                                         evtTarget.val('')
 
@@ -372,7 +405,7 @@
 
                                         updateForm();
                                         $j('#billing\\:speedy_site_id').val('')
-                                        $j('#zip').val('')
+                                        $j('#billing\\:postcode').val('')
                                     } else {
                                         // updateForm(true);
                                     }
@@ -385,6 +418,7 @@
                                         evtTarget.val('')
                                         $j('#billing\\:speedy_street_id').val('');
                                     }
+
 
 
                                     else if (evtTarget.val() != streetName && isFullNomenclature == 'FULL') {
@@ -416,6 +450,7 @@
                                     } else if (isFullNomenclature == 'NO' || isFullNomenclature == 'PARTIAL') {
                                         evtTarget.val(evtTarget.val().toUpperCase())
                                     }
+
 
 
                                 } else if (evtTarget.attr('id') == 'billing:speedy_office_locator') {
@@ -455,6 +490,7 @@
                             }
 
 
+
                             $j('#billing\\:city,div#billing\\:speedy_normal_address input, div#billing\\:speedy_office_address input').blur(function(evt) {
 
 
@@ -473,6 +509,7 @@
                                 var showError = true;
 
                                 for (var i = 0; i < test.length; i++) {
+
 
 
                                     if (test[i] == isValidAddress || isValidAddress == "") {
@@ -499,6 +536,7 @@
                             $j('#billing\\:speedy_office_chooser').change(function(evt) {
 
 
+
                                 if ($j(this).is(':checked')) {
                                     $j('#billing\\:speedy_normal_address').hide().find('input').val('');
                                     $j('#billing\\:speedy_office_address').show().find('input').show();
@@ -509,6 +547,7 @@
 
                                 }
                             });
+
 
 
                             $j('#billing-address-select').change(function(evt) {
@@ -539,7 +578,9 @@
                                             url: "<?php echo Mage::getUrl("speedyshippingfront/address/getSite"); ?>",
                                             dataType: "json",
                                             data: {
-                                                term: request.term
+                                                term: request.term,
+                                                countryid: $j('#billing\\:speedy_country_id').val(),
+                                                countryiso: $j('#billing\\:country_id').val()
                                             },
                                             success: function(data) {
 
@@ -555,8 +596,11 @@
 
                                         $j('#billing\\:speedy_site_id').val(ui.item.value)
                                         $j('#billing\\:postcode').val(ui.item.post_code)
-                                        $j('#billing\\:region').val(ui.item.region)
-                                        $j('#billing\\:country_id').val('BG');
+                                        if ($j('#billing\\:country_id').length != 0 && $j('#billing\\:country_id').val() == 'BG') {
+                                            $j('#billing\\:region').val(ui.item.region);
+                                        }
+                                       
+                                        // $j('#billing\\:country_id').val('BG');
                                         siteName = ui.item.label;
                                         if (ui.item.is_full_nomenclature == 'NO') {
                                             isFullNomenclature = 'NO';
@@ -615,6 +659,8 @@
 
 
 
+
+
                                 $j('#billing\\:speedy_quarter_name').autocomplete({
                                     source: function(request, response) {
 
@@ -623,7 +669,8 @@
                                             dataType: "json",
                                             data: {
                                                 term: request.term,
-                                                cityid: $j('#billing\\:speedy_site_id').val()
+                                                cityid: $j('#billing\\:speedy_site_id').val(),
+                                                countryiso: $j('#billing\\:country_id').val()
                                             },
                                             success: function(data) {
                                                 response(data);
@@ -646,7 +693,8 @@
                                             dataType: "json",
                                             data: {
                                                 term: request.term,
-                                                cityid: $j('#billing\\:speedy_site_id').val()
+                                                cityid: $j('#billing\\:speedy_site_id').val(),
+                                                countryiso: $j('#billing\\:country_id').val()
                                             },
                                             success: function(data) {
                                                 response(data);
@@ -662,6 +710,7 @@
                                     }});
 
 
+
                                 $j('#billing\\:speedy_block_number').autocomplete({
                                     source: function(request, response) {
 
@@ -670,7 +719,8 @@
                                             dataType: "json",
                                             data: {
                                                 term: request.term,
-                                                cityid: $j('#billing\\:speedy_site_id').val()
+                                                cityid: $j('#billing\\:speedy_site_id').val(),
+                                                countryiso: $j('#billing\\:country_id').val()
                                             },
                                             success: function(data) {
                                                 response(data);
@@ -681,6 +731,35 @@
                                     , select: function(event, ui) {
                                         $j(this).val(ui.item.label);
 
+                                        return false;
+                                    }});
+
+                                $j('#billing\\:region').autocomplete({
+                                    source: function(request, response) {
+
+                                        $j.ajax({
+                                            url: "<?php echo Mage::getUrl("speedyshippingfront/address/getStates"); ?>",
+                                            dataType: "json",
+                                            data: {
+                                                term: request.term,
+                                                countryid: $j('#billing\\:speedy_country_id').val(),
+                                                countryiso: $j('#billing\\:country_id').val(),
+                                            },
+                                            success: function(data) {
+                                                response(data);
+                                            }
+                                        });
+                                    }
+                                    , response: function(event, ui) {
+                                        $j(this).autocomplete("option", "disabled", false);
+
+                                    }
+
+                                    , minLength: 0
+                                    , select: function(event, ui) {
+                                        $j(this).val(ui.item.label);
+                                        $j('#billing\\:speedy_state_id').val(ui.item.value);
+  
                                         return false;
                                     }});
 
@@ -718,10 +797,13 @@
                                     }
 
 
+
                                 }
 
 
                             }
+
+
 
 
 
@@ -747,28 +829,32 @@
                                 var speedy_office_id = $j(prefix + 'speedy_office_id').val();
 
 
+
                                 var isBillingSameAsShipping = $j('#billing\\:use_for_shipping_yes').is(':checked');
                                 var isNewAddress = $j('#billing-address-select').val();
 
                                 var isValid = 0;
 
                                 if (!isNewAddress) {
-                                    if (quarter || quarter_id) {
-                                        if ((street && number) || blockNo || number) {
+                                    if ($j('#billing\\:country_id').length != 0 && $j('#billing\\:country_id').val() == 'BG') {
+                                        if (quarter || quarter_id) {
+                                            if ((street && number) || blockNo || number) {
+                                                isValid = true;
+                                            }
 
+                                        } else if (speedy_pick_from_office && speedy_office_name && speedy_office_id) {
+                                            isValid = true;
+                                        } else if ((street || street_id)) {
+                                            if (number || blockNo) {
+                                                isValid = true;
+                                            }
+
+                                        } else if (address_note && address_note.length > 4) {
                                             isValid = true;
                                         }
-
-                                    } else if (speedy_pick_from_office && speedy_office_name && speedy_office_id) {
+                                    } else {
                                         isValid = true;
-                                    } else if ((street || street_id)) {
-                                        if (number || blockNo) {
-
-                                            isValid = true;
-                                        }
-
-                                    } else if (address_note && address_note.length > 4) {
-                                        isValid = true;
+                                        return true;
                                     }
 
                                     if (isValid) {
@@ -851,6 +937,7 @@
                                 var isBillingSameForShipping = $j('#billing\\:use_for_shipping_yes').is(':checked');
 
 
+
                                 if (isNewBillingAddress && isBillingSameForShipping) {
 
                                     isShippingFullNomenclature = isFullNomenclature;
@@ -862,7 +949,6 @@
 
                                 $j('div#speedyBillingError').hide();
                                 evt.preventDefault();
-
 
                                 var isValid = validateAddress();
 
@@ -887,6 +973,7 @@
 
                                 updateForm();
                             })
+
 
 
                             function updateForm(enable) {
@@ -926,3 +1013,137 @@
 
                         })
                     </script>
+                    
+                    <script>
+                        $j(document).ready(function () {
+                            function enableSiteAutocomplete() {
+                                $j("#billing\\:city").autocomplete("option", "disabled", false);
+                            }
+
+                            function disableSiteAutocomplete() {
+                                $j("#billing\\:city").autocomplete("option", "disabled", true);
+                            }
+
+                            $j('#billing\\:country_id').change(function () {
+                                if ($j(this).val() == 'BG') {
+                                    $j('.non_bg_field').hide();
+                                    $j('.bg_field').show();
+                                } else {
+                                    if ($j('#billing\\:speedy_office_chooser').is(':checked')) {
+                                        $j('#billing\\:speedy_office_chooser').attr('checked', false);
+                                        $j('#billing\\:speedy_office_chooser').trigger('change');
+                                    }
+
+                                    $j('.bg_field').hide();
+                                    $j('.non_bg_field').show();
+                                    $j('div#billing\\:speedy_normal_address input, #billing\\:speedy_office_address input').attr('disabled', false).val('');
+                                }
+
+                                $j('#billing\\:speedy_site_id, #billing\\:city, #billing\\:postcode, #billing\\:region, #billing\\:speedy_state_id').val('');
+
+                                $j.ajax({
+                                    url: "<?php echo Mage::getUrl("speedyshippingfront/address/getCountries"); ?>",
+                                    dataType: "json",
+                                    async: false,
+                                    data: {
+                                        countryiso: $j('#billing\\:country_id').val()
+                                    },
+                                    success: function(data) {
+                                        if (data && data.hasOwnProperty($j('#billing\\:country_id').val())) {
+                                            if (data[$j('#billing\\:country_id').val()].hasOwnProperty('id')) {
+                                                $j('#billing\\:speedy_country_id').val(data[$j('#billing\\:country_id').val()].id);
+                                            }
+
+                                            if (data[$j('#billing\\:country_id').val()].hasOwnProperty('active_currency_code')) {
+                                                $j('#billing\\:active_currency_code').val(data[$j('#billing\\:country_id').val()].active_currency_code);
+                                            }
+
+                                            if (data[$j('#billing\\:country_id').val()].hasOwnProperty('is_full_nomenclature')) {
+                                                if(!data[$j('#billing\\:country_id').val()].is_full_nomenclature) {
+                                                    isFullSiteNomenclature = 'NO';
+                                                    disableSiteAutocomplete();
+                                                } else if (data[$j('#billing\\:country_id').val()].is_full_nomenclature == 2) {
+                                                    isFullSiteNomenclature = 'PARTIAL';
+                                                    enableSiteAutocomplete();
+                                                } else {
+                                                    isFullSiteNomenclature = 'FULL';
+                                                    enableSiteAutocomplete();
+                                                }
+                                            }
+
+                                            if (data[$j('#billing\\:country_id').val()].hasOwnProperty('required_state')) {
+                                                state_req = '<?php echo $this->helper('customer/address')->getAttributeValidationClass('region') ?>';
+                                                if (data[$j('#billing\\:country_id').val()].required_state) {
+                                                    if (!$j('label[for=billing\\:region]').hasClass('required')) {
+                                                        $j('label[for=billing\\:region]').addClass('required');
+                                                        $j('label[for=billing\\:region]').find('em').show();
+                                                    }
+
+                                                    if (!$j('#billing\\:region').hasClass(state_req)) {
+                                                        $j('#billing\\:region').addClass(state_req);
+                                                    }
+                                                    if (!$j('#billing\\:speedy_state_id').hasClass('required')) {
+                                                        $j('#billing\\:speedy_state_id').addClass('required');
+                                                    }
+                                                } else {
+                                                    $j('label[for=billing\\:region]').removeClass('required');
+                                                    $j('label[for=billing\\:region]').find('em').hide();
+                                                    $j('#billing\\:region').removeClass(state_req);
+                                                    $j('#billing\\:speedy_state_id').removeClass('required');
+                                                }
+                                            }
+
+                                            if (data[$j('#billing\\:country_id').val()].hasOwnProperty('required_postcode')) {
+                                                postcode_req = '<?php echo $this->helper('customer/address')->getAttributeValidationClass('postcode') ?>';
+                                                if (data[$j('#billing\\:country_id').val()].required_postcode) {
+                                                    if (!$j('label[for=billing\\:postcode]').hasClass('required')) {
+                                                        $j('label[for=billing\\:postcode]').addClass('required');
+                                                        $j('label[for=billing\\:postcode]').find('em').show();
+                                                    }
+
+                                                    if (!$j('#billing\\:postcode').hasClass(postcode_req)) {
+                                                        $j('#billing\\:postcode').addClass(postcode_req);
+                                                    }
+                                                } else {
+                                                    $j('label[for=billing\\:postcode]').removeClass('required');
+                                                    $j('label[for=billing\\:postcode]').find('em').hide();
+                                                    $j('#billing\\:postcode').removeClass(postcode_req);
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+
+                            if ($j('#billing\\:country_id').length != 0) {
+                                $j('#billing\\:country_id').trigger('change');
+                            }
+
+                            $j('#billing-new-address-form input').keypress(function(event){
+                                if ($j('#billing\\:country_id').val() != 'BG' && event.key.match(/[а-яА-я]/)) {
+                                    event.preventDefault();
+                                    alert('<?php echo $this->__('Please, use only latin characters!') ?>');
+                                }
+                            });
+
+                            $j('#billing-new-address-form input:text').focusout(function(event){
+                                speedy_clear_input($j(this));
+                            });
+
+                            $j('#billing-new-address-form input:text').each(function(index) {
+                                speedy_clear_input($j(this));
+                            });
+
+                            function speedy_clear_input(element) {
+                                if ($j('#billing\\:country_id').val() != 'BG' && element.val().match(/[а-яА-я]/)) {
+                                    alert('<?php echo $this->__('Please, use only latin characters!') ?>');
+                                    element.val('');
+                                }
+                            }
+                        });
+                    </script>
+    <style>
+        .bg_field {
+            display: none;
+        }
+    </style>

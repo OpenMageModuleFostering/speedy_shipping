@@ -99,7 +99,8 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
      */
     public function listServicesForSites(
         $sessionId, $date, $senderSiteId, $receiverSiteId,
-        $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode, $language
+        $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode, $language,
+        $senderId, $receiverId, $senderOfficeId, $receiverOfficeId
     ) {
         try {
             $listServicesForSitesStdObject = new stdClass();
@@ -112,6 +113,10 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
             $listServicesForSitesStdObject->receiverCountryId = $receiverCountryId;
             $listServicesForSitesStdObject->receiverPostCode  = $receiverPostCode;
             $listServicesForSitesStdObject->language          = $language;
+            $listServicesForSitesStdObject->senderId          = $senderId;
+            $listServicesForSitesStdObject->receiverId        = $receiverId;
+            $listServicesForSitesStdObject->senderOfficeId    = $senderOfficeId;
+            $listServicesForSitesStdObject->receiverOfficeId  = $receiverOfficeId;
             $response = parent::listServicesForSites($listServicesForSitesStdObject);
             $arrServicesForSitesStdObject = array();
             if (isset($response->return)) {
@@ -191,7 +196,8 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
      */
     public function getWeightInterval(
         $sessionId, $serviceTypeId, $senderSiteId, $receiverSiteId, $date, $documents,
-        $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode
+        $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode,
+        $senderId, $receiverId, $senderOfficeId, $receiverOfficeId
     ) {
         try {
             $getWeightIntervalStdObject = new stdClass();
@@ -205,6 +211,11 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
             $getWeightIntervalStdObject->senderPostCode    = $senderPostCode;
             $getWeightIntervalStdObject->receiverCountryId = $receiverCountryId;
             $getWeightIntervalStdObject->receiverPostCode  = $receiverPostCode;
+
+            $getWeightIntervalStdObject->senderId          = $senderId;
+            $getWeightIntervalStdObject->receiverId        = $receiverId;
+            $getWeightIntervalStdObject->senderOfficeId    = $senderOfficeId;
+            $getWeightIntervalStdObject->receiverOfficeId  = $receiverOfficeId;
             
             $response = parent::getWeightInterval($getWeightIntervalStdObject);
             if (isset($response->return)) {
@@ -533,7 +544,7 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
      * @see EPSInterface::getAllowedDaysForTaking()
      */
     public function getAllowedDaysForTaking(
-        $sessionId, $serviceTypeId, $senderSiteId, $senderOfficeId, $minDate, $senderCountryId, $senderPostCode
+        $sessionId, $serviceTypeId, $senderSiteId, $senderOfficeId, $minDate, $senderCountryId, $senderPostCode, $senderId
     ) {
         try {
             $getAllowedDaysForTakingStdObject = new stdClass();
@@ -544,6 +555,7 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
             $getAllowedDaysForTakingStdObject->minDate         = $minDate;
             $getAllowedDaysForTakingStdObject->senderCountryId = $senderCountryId;
             $getAllowedDaysForTakingStdObject->senderPostCode  = $senderPostCode;
+            $getAllowedDaysForTakingStdObject->senderId        = $senderId;
             
             $response = parent::getAllowedDaysForTaking($getAllowedDaysForTakingStdObject);
             $arrGetAllowedDaysForTaking = array();
@@ -894,12 +906,13 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::trackPickingEx()
      */
-    public function trackPickingEx($sessionId, $billOfLading, $language) {
+    public function trackPickingEx($sessionId, $billOfLading, $language, $returnOnlyLastOperation) {
         try {
             $trackPickingExStdObject = new stdClass();
-            $trackPickingExStdObject->sessionId    = $sessionId;
-            $trackPickingExStdObject->billOfLading = $billOfLading;
-            $trackPickingExStdObject->language     = $language;
+            $trackPickingExStdObject->sessionId               = $sessionId;
+            $trackPickingExStdObject->billOfLading            = $billOfLading;
+            $trackPickingExStdObject->language                = $language;
+            $trackPickingExStdObject->returnOnlyLastOperation = $returnOnlyLastOperation;
             $response = parent::trackPickingEx($trackPickingExStdObject);
             $arrResultTrackPickingEx = array();
 
@@ -948,12 +961,13 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::trackParcel()
      */
-    public function trackParcel($sessionId, $parcelId, $language) {
+    public function trackParcel($sessionId, $parcelId, $language, $returnOnlyLastOperation) {
         try {
             $trackParcelStdObject = new stdClass();
-            $trackParcelStdObject->sessionId = $sessionId;
-            $trackParcelStdObject->parcelId  = $parcelId;
-            $trackParcelStdObject->language  = $language;
+            $trackParcelStdObject->sessionId               = $sessionId;
+            $trackParcelStdObject->parcelId                = $parcelId;
+            $trackParcelStdObject->language                = $language;
+            $trackParcelStdObject->returnOnlyLastOperation = $returnOnlyLastOperation;
             $response = parent::trackParcel($trackParcelStdObject);
             $arrResultTrackParcel = array();
     
@@ -976,12 +990,13 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::trackParcelMultiple()
      */
-    public function trackParcelMultiple($sessionId, $barcodes, $language) {
+    public function trackParcelMultiple($sessionId, $barcodes, $language, $returnOnlyLastOperation) {
   	  try {
             $trackParcelMultipleStdObject = new stdClass();
-            $trackParcelMultipleStdObject->sessionId = $sessionId;
-            $trackParcelMultipleStdObject->barcodes  = $barcodes;
-            $trackParcelMultipleStdObject->language  = $language;
+            $trackParcelMultipleStdObject->sessionId               = $sessionId;
+            $trackParcelMultipleStdObject->barcodes                = $barcodes;
+            $trackParcelMultipleStdObject->language                = $language;
+            $trackParcelMultipleStdObject->returnOnlyLastOperation = $returnOnlyLastOperation;
             $response = parent::trackParcelMultiple($trackParcelMultipleStdObject);
             $arrResultTrackParcelMultiple = array();
     
@@ -1410,5 +1425,43 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
             throw new ServerException($sf);
         }
     }  
+
+
+    /**
+     * @see EPSInterface::getPickingExtendedInfo()
+     */
+    public function getPickingExtendedInfo($sessionId, $billOfLading) {
+   		try {
+            $getPickingExtendedInfoStdObject = new stdClass();
+            $getPickingExtendedInfoStdObject->sessionId    = $sessionId;
+            $getPickingExtendedInfoStdObject->billOfLading = $billOfLading;
+            $response = parent::getPickingExtendedInfo($getPickingExtendedInfoStdObject);
+            
+            if (isset($response->return)) {
+                $ResultPickingExtendedInfo = new ResultPickingExtendedInfo($response->return);
+            } else {
+                $ResultPickingExtendedInfo = null;
+            }
+            return $ResultPickingExtendedInfo;
+				/*
+            $arrResultPickingExtendedInfoStdObject = array();
+            if (isset($response->return)) {
+                $arrStdResultPickingExtendedInfoObject = $response->return;
+                if (is_array($arrStdResultPickingExtendedInfoObject)) {
+                    for($i = 0; $i < count($arrStdResultPickingExtendedInfoObject); $i++) {
+                        $arrResultPickingExtendedInfoStdObject[$i] = new ResultPickingExtendedInfo($arrStdResultPickingExtendedInfoObject[$i]);
+                    }
+                } else {
+                    $arrResultPickingExtendedInfoStdObject[0] = new ResultPickingExtendedInfo($arrStdResultPickingExtendedInfoObject);
+                }
+            }
+            return $arrResultPickingExtendedInfoStdObject;
+				*/
+				
+        } catch (SoapFault $sf) {
+            throw new ServerException($sf);
+        }
+    }  
+
 }
 ?>

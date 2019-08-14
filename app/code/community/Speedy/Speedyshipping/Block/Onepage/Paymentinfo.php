@@ -115,7 +115,7 @@ class Speedy_Speedyshipping_Block_Onepage_Paymentinfo extends Mage_Payment_Block
                 //Is Speedy the choosen courier
                 if ($code[0] == 'speedyshippingmodule') {
 
-                    $amountWithoutTax = $this->_codAmount = number_format($cod[$code[1]], 2);
+                    $amountWithoutTax = $this->_codAmount = ($cod[$code[1]] ? number_format($cod[$code[1]], 2) : 0);
 
 
                     $taxCalculator = Mage::helper('tax');
@@ -146,21 +146,25 @@ class Speedy_Speedyshipping_Block_Onepage_Paymentinfo extends Mage_Payment_Block
         }
         
         //Is free shipping enabled
-        if (Mage::getStoreConfig('carriers/speedyshippingmodule/free_shipping_enable')) {
+        /* if (Mage::getStoreConfig('carriers/speedyshippingmodule/free_shipping_enable')) {
 
             $freeCityMethod = Mage::getStoreConfig('carriers/speedyshippingmodule/free_method_city');
 
             $freeInterCityMethod = Mage::getStoreConfig('carriers/speedyshippingmodule/free_method_intercity');
 
+            $freeInternationalMethod = explode(',', Mage::getStoreConfig('carriers/speedyshippingmodule/free_method_international'));
+
             if (isset($code)) {
                 //Is this a free method
                 if (array_key_exists(1, $code)) {
-                    if (($code[1] == $freeCityMethod) || ($code[1] == $freeInterCityMethod)) {
+                    if (($code[1] == $freeCityMethod) ||
+                        ($code[1] == $freeInterCityMethod) ||
+                        in_array($code[1], $freeInternationalMethod)) {
                         $this->_isFreeMethod = TRUE;
                     }
                 }
             }
-        }else if($shippingAmount == 0.000){
+        }else */ if($shippingAmount == 0.000){
               $this->_isFreeMethod = TRUE;
         }
 

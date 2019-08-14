@@ -42,9 +42,7 @@ class Speedy_Speedyshipping_Helper_Data extends Mage_Core_Helper_Abstract {
                     new EPSSOAPInterfaceImpl(Mage::getStoreConfig('carriers/speedyshippingmodule/server'));
 
             $this->_speedyEPS = new EPSFacade($this->_speedyEPSInterfaceImplementaion, $user, $pass);
-            $this->_speedySessionId = $this->_speedyEPS->login();
-
-            $this->_senderData = $this->_speedyEPS->getClientById($this->_speedyEPS->getResultLogin()->getClientId());
+            $this->_speedySessionId = $this->_speedyEPS->getResultLogin();
         } catch (ServerException $se) {
             throw new Exception($se->getMessage());
         }

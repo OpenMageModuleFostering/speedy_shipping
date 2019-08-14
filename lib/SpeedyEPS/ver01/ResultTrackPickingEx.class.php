@@ -73,12 +73,26 @@ class ResultTrackPickingEx {
      */
 	private $_signatureImage;
 
+	/**
+     * Foreign parcel number associated with this parcel
+     * @var string
+     * @since 2.9.0
+     */
+	private $_foreignParcelNumber;
+
+	/**
+     * List of exception codes.
+     * @var List of signed 32-bit integer (nullable)
+     * @since 2.9.0
+     */
+	private $_exceptionCodes;
+
     /**
      * Constructs new instance of ResultTrackPickingEx
      * @param stdClass $stdClassResultTrackPickingEx
      */
     function __construct($stdClassResultTrackPickingEx) {
-   		$this->_barcode              = isset($stdClassResultTrackPickingEx->barcode)              ? $stdClassResultTrackPickingEx->barcode              : null;
+        $this->_barcode              = isset($stdClassResultTrackPickingEx->barcode)              ? $stdClassResultTrackPickingEx->barcode              : null;
         $this->_moment               = isset($stdClassResultTrackPickingEx->moment)               ? $stdClassResultTrackPickingEx->moment               : null;
         $this->_operationCode        = isset($stdClassResultTrackPickingEx->operationCode)        ? $stdClassResultTrackPickingEx->operationCode        : null;
         $this->_operationDescription = isset($stdClassResultTrackPickingEx->operationDescription) ? $stdClassResultTrackPickingEx->operationDescription : null;
@@ -89,6 +103,8 @@ class ResultTrackPickingEx {
         $this->_returnBillOfLading   = isset($stdClassResultTrackPickingEx->returnBillOfLading)   ? $stdClassResultTrackPickingEx->returnBillOfLading   : null;
         $this->_redirectBillOfLading = isset($stdClassResultTrackPickingEx->redirectBillOfLading) ? $stdClassResultTrackPickingEx->redirectBillOfLading : null;
         $this->_signatureImage       = isset($stdClassResultTrackPickingEx->signatureImage)       ? $stdClassResultTrackPickingEx->signatureImage       : null;
+        $this->_foreignParcelNumber  = isset($stdClassResultTrackPickingEx->foreignParcelNumber)  ? $stdClassResultTrackPickingEx->foreignParcelNumber  : null;
+        $this->_exceptionCodes       = isset($stdClassResultTrackPickingEx->exceptionCodes)       ? $stdClassResultTrackPickingEx->exceptionCodes       : null;
     }
 
 	/**
@@ -180,5 +196,24 @@ class ResultTrackPickingEx {
     public function getSignatureImage() {
         return $this->_signatureImage;
     }
+
+    /**
+     * Get foreignParcelNumber
+     * @return string
+     * @since 2.9.0
+     */
+    public function getForeignParcelNumber() {
+        return $this->_foreignParcelNumber;
+    }
+
+    /**
+     * Get list of exception codes.
+     * @return list of signed 32-bit integer (nullable)
+     * @since 2.9.0
+     */
+    public function getExceptionCodes() {
+        return $this->_exceptionCodes;
+    }
+
 }
 ?>

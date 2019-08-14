@@ -47,7 +47,9 @@ Mage_Adminhtml_Block_Sales_Order_Create_Billing_Address{
         
         $ids = array();
         foreach($customer->getAddresses() as $address){
-            if($address->getSpeedySiteId()){
+            if($address->getCountryId() == 'BG' && $address->getSpeedySiteId()){
+                $ids[] = $address->getId();
+            } elseif ($address->getCountryId() != 'BG' && $address->getCity()) {
                 $ids[] = $address->getId();
             }
         }
@@ -80,20 +82,41 @@ Mage_Adminhtml_Block_Sales_Order_Create_Billing_Address{
                 $this->_isFullNomenclature = $result[0]->is_full_nomenclature;
             }
         }
+
+        //Set country 
+        $speedyCountryName = $this->_form->getElement('country_id');
         
         
+        $fieldset->removeField($speedyCountryName->getId());
+        
+        $speedyCountryField = $fieldset->addField($speedyCountryName->getId(),
+                    'select',
+                    $speedyCountryName->getData(),
+                    $this->_form->getElement('company')->getId()
+                );
+
+        //Set postcode 
+        $speedyPostcodeName = $this->_form->getElement('postcode');
         
         
+        $fieldset->removeField($speedyPostcodeName->getId());
+        
+        $speedyPostcodeField = $fieldset->addField($speedyPostcodeName->getId(),
+                    'text',
+                    $speedyPostcodeName->getData(),
+                    $this->_form->getElement('city')->getId()
+                );
+
         //Set office enabled
         $speedyOfficeEnabled = $this->_form->getElement('speedy_office_chooser');
         
         
         $fieldset->removeField($speedyOfficeEnabled->getId());
         
-        $speedyQuarterField = $fieldset->addField($speedyOfficeEnabled->getId(),
+        $speedyOfficeField = $fieldset->addField($speedyOfficeEnabled->getId(),
                     'select',
                     $speedyOfficeEnabled->getData(),
-                    $this->_form->getElement('city')->getId()
+                    $this->_form->getElement('region')->getId()
                 );
         
         

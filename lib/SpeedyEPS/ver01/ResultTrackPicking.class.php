@@ -60,20 +60,36 @@ class ResultTrackPicking {
      */
 	private $_signatureImage;
 
+	/**
+     * Foreign parcel number associated with this parcel
+     * @var string
+     * @since 2.9.0
+     */
+	private $_foreignParcelNumber;
+
+	/**
+     * List of exception codes.
+     * @var List of signed 32-bit integer (nullable)
+     * @since 2.9.0
+     */
+	private $_exceptionCodes;
+
     /**
      * Constructs new instance of ResultTrackPicking
      * @param stdClass $stdClassResultTrackPicking
      */
     function __construct($stdClassResultTrackPicking) {
-    	$this->_barcode              = isset($stdClassResultTrackPicking->barcode)              ? $stdClassResultTrackPicking->barcode              : null;
-        $this->_moment               = isset($stdClassResultTrackPicking->moment)               ? $stdClassResultTrackPicking->moment               : null;
-        $this->_operationCode        = isset($stdClassResultTrackPicking->operationCode)        ? $stdClassResultTrackPicking->operationCode        : null;
-        $this->_operationDescription = isset($stdClassResultTrackPicking->operationDescription) ? $stdClassResultTrackPicking->operationDescription : null;
-        $this->_operationComment     = isset($stdClassResultTrackPicking->operationComment)     ? $stdClassResultTrackPicking->operationComment     : null;
-        $this->_siteType             = isset($stdClassResultTrackPicking->siteType)             ? $stdClassResultTrackPicking->siteType             : null;
-        $this->_siteName             = isset($stdClassResultTrackPicking->siteName)             ? $stdClassResultTrackPicking->siteName             : null;
-        $this->_consignee            = isset($stdClassResultTrackPicking->consignee)            ? $stdClassResultTrackPicking->consignee            : null;
-        $this->_signatureImage       = isset($stdClassResultTrackPicking->signatureImage)       ? $stdClassResultTrackPicking->signatureImage       : null;
+    	  $this->_barcode              = isset($stdClassResultTrackPicking->barcode)              ? $stdClassResultTrackPicking->barcode               : null;
+        $this->_moment               = isset($stdClassResultTrackPicking->moment)               ? $stdClassResultTrackPicking->moment                : null;
+        $this->_operationCode        = isset($stdClassResultTrackPicking->operationCode)        ? $stdClassResultTrackPicking->operationCode         : null;
+        $this->_operationDescription = isset($stdClassResultTrackPicking->operationDescription) ? $stdClassResultTrackPicking->operationDescription  : null;
+        $this->_operationComment     = isset($stdClassResultTrackPicking->operationComment)     ? $stdClassResultTrackPicking->operationComment      : null;
+        $this->_siteType             = isset($stdClassResultTrackPicking->siteType)             ? $stdClassResultTrackPicking->siteType              : null;
+        $this->_siteName             = isset($stdClassResultTrackPicking->siteName)             ? $stdClassResultTrackPicking->siteName              : null;
+        $this->_consignee            = isset($stdClassResultTrackPicking->consignee)            ? $stdClassResultTrackPicking->consignee             : null;
+        $this->_signatureImage       = isset($stdClassResultTrackPicking->signatureImage)       ? $stdClassResultTrackPicking->signatureImage        : null;
+        $this->_foreignParcelNumber  = isset($stdClassResultTrackPickingEx->foreignParcelNumber)? $stdClassResultTrackPickingEx->foreignParcelNumber : null;
+        $this->_exceptionCodes       = isset($stdClassResultTrackPickingEx->exceptionCodes)     ? $stdClassResultTrackPickingEx->exceptionCodes      : null;
     }
     
     /**
@@ -149,5 +165,24 @@ class ResultTrackPicking {
     public function getSignatureImage() {
         return $this->_signatureImage;
     }
+
+    /**
+     * Get foreignParcelNumber
+     * @return string
+     * @since 2.9.0
+     */
+    public function getForeignParcelNumber() {
+        return $this->_foreignParcelNumber;
+    }
+
+    /**
+     * Get list of exception codes.
+     * @return list of signed 32-bit integer (nullable)
+     * @since 2.9.0
+     */
+    public function getExceptionCodes() {
+        return $this->_exceptionCodes;
+    }
+
 }
 ?>

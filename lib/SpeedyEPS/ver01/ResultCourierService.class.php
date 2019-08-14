@@ -56,6 +56,12 @@ class ResultCourierService {
     private $_allowanceToBeCalled;
 
     /**
+     * Cargo type
+     * @var integer Signed 32-bit
+     */
+    private $_cargoType;
+
+    /**
      * Constructs new instance of ResultCourierService
      * @param stdClass $stdClassResultCourierService
      */
@@ -68,6 +74,7 @@ class ResultCourierService {
         $this->_allowanceBackDocumentsRequest = isset($stdClassResultCourierService->allowanceBackDocumentsRequest) ? new ComplementaryServiceAllowance($stdClassResultCourierService->allowanceBackDocumentsRequest) : null;
         $this->_allowanceBackReceiptRequest   = isset($stdClassResultCourierService->allowanceBackReceiptRequest) ? new ComplementaryServiceAllowance($stdClassResultCourierService->allowanceBackReceiptRequest) : null;
         $this->_allowanceToBeCalled           = isset($stdClassResultCourierService->allowanceToBeCalled) ? new ComplementaryServiceAllowance($stdClassResultCourierService->allowanceToBeCalled) : null;
+        $this->_cargoType                     = isset($stdClassResultCourierService->cargoType) ? $stdClassResultCourierService->cargoType : null;
     }
 
     /**
@@ -133,5 +140,14 @@ class ResultCourierService {
     public function getAllowanceToBeCalled() {
         return $this->_allowanceToBeCalled;
     }
+
+    /**
+     * Get service carto type
+     * @return integer Signed 32-bit
+     */
+    public function getCargoType() {
+        return $this->_cargoType;
+    }
+
 }
 ?>

@@ -35,15 +35,29 @@ class Speedy_Speedyshipping_Model_Autocomplete_Address extends Mage_Core_Model_A
     public function getSite($siteID = null) {
         $session = Mage::getSingleton('checkout/session');
         $cityName = $this->_request->getParam('term');
+        $countryId = (int)$this->_request->getParam('countryid');
+        $countryIso = $this->_request->getParam('countryiso');
         //$cityName = Mage::helper('speedyshippingmodule/transliterate')->transliterate($cityName);
         $lang = Mage::helper('speedyshippingmodule/transliterate')->getLanguage($cityName);
+        if ($countryIso != 'BG') {
+            $lang = 'EN';
+        }
         //$city = strtoupper($address->getCity());
         try {
             //Customer is editing an existing address
             if (!is_null($siteID)) {
                 $sites = $this->_speedyEPS->getSiteById($siteID);
             } else {
-                $sites = $this->_speedyEPS->listSites(null, $cityName, $lang);
+                require_once Mage::getBaseDir('lib') . DS . 'SpeedyEPS' . DS . 'ver01' . DS . 'ParamFilterSite.class.php';
+                $paramFilterSite = new ParamFilterSite();
+                $paramFilterSite->setSearchString($cityName);
+
+                if ($countryId) {
+                    $paramFilterSite->setCountryId($countryId);
+                }
+
+                $sites = $this->_speedyEPS->listSitesEx($paramFilterSite, $lang);
+                // $sites = $this->_speedyEPS->listSites(null, $cityName, $lang);
             }
         } catch (ServerException $se) {
             Mage::log($se->getMessage(),null,'speedyLog.log');
@@ -52,16 +66,21 @@ class Speedy_Speedyshipping_Model_Autocomplete_Address extends Mage_Core_Model_A
             $tpl = array();
 
             if (count($sites) == 1 && is_null($siteID)) {
-                $nomenclature = $sites[0]->getAddrNomen()->getValue();
-                $tpl[] = array('value' => $sites[0]->getId(),
-                    'label' => $sites[0]->getType() . ' ' . $sites[0]->getName() . ', ' .
-                    ' общ. ' . $sites[0]->getMunicipality() . ', ' . ' обл. ' . $sites[0]->getRegion(),
-                    'post_code' => $sites[0]->getPostCode(),
-                    'region' => $sites[0]->getRegion(),
-                    'is_full_nomenclature' => $sites[0]->getAddrNomen()->getValue(),
+                if (empty($countryId) || (!empty($countryIso) && $countryIso == 'BG')) {
+                    $label = $sites[0]->getSite()->getType() . ' ' . $sites[0]->getSite()->getName() .
+                    ', общ. ' . $sites[0]->getSite()->getMunicipality() . ', обл. ' . $sites[0]->getSite()->getRegion();
+                } else {
+                    $label = $sites[0]->getSite()->getName();
+                }
+
+                $nomenclature = $sites[0]->getSite()->getAddrNomen()->getValue();
+                $tpl[] = array('value' => $sites[0]->getSite()->getId(),
+                    'label' => $label,
+                    'post_code' => $sites[0]->getSite()->getPostCode(),
+                    'region' => $sites[0]->getSite()->getRegion(),
                     'is_full_nomenclature' => $nomenclature,
-                    'post_code' => $sites[0]->getPostCode(),
-                    'region' => $sites[0]->getRegion());
+                    'post_code' => $sites[0]->getSite()->getPostCode(),
+                    'region' => $sites[0]->getSite()->getRegion());
             }else if(count($sites) == 1){
                 $nomenclature = $sites->getAddrNomen()->getValue();
                 $tpl[] = array('value' => $sites->getId(),
@@ -69,25 +88,27 @@ class Speedy_Speedyshipping_Model_Autocomplete_Address extends Mage_Core_Model_A
                     ' общ. ' . $sites->getMunicipality() . ', ' . ' обл. ' . $sites->getRegion(),
                     'post_code' => $sites->getPostCode(),
                     'region' => $sites->getRegion(),
-                    'is_full_nomenclature' => $sites->getAddrNomen()->getValue(),
                     'is_full_nomenclature' => $nomenclature,
                     'post_code' => $sites->getPostCode(),
                     'region' => $sites->getRegion());
             }
             else {
-
                 foreach ($sites as $site) {
+                    if (empty($countryId) || (!empty($countryIso) && $countryIso == 'BG')) {
+                        $label = $site->getSite()->getType() . ' ' . $site->getSite()->getName() .
+                        ', общ. ' . $site->getSite()->getMunicipality() . ', обл. ' . $site->getSite()->getRegion();
+                    } else {
+                        $label = $site->getSite()->getName();
+                    }
 
-                    $nomenclature = $site->getAddrNomen()->getValue();
-                    $tpl[] = array('value' => $site->getId(),
-                        'label' => $site->getType() . ' ' . $site->getName() .
-                        ', общ. ' . $site->getMunicipality() . ', обл. ' . $site->getRegion(),
-                        'post_code' => $site->getPostCode(),
-                        'region' => $site->getRegion(),
-                        'is_full_nomenclature' => $site->getAddrNomen()->getValue(),
+                    $nomenclature = $site->getSite()->getAddrNomen()->getValue();
+                    $tpl[] = array('value' => $site->getSite()->getId(),
+                        'label' => $label,
+                        'post_code' => $site->getSite()->getPostCode(),
+                        'region' => $site->getSite()->getRegion(),
                         'is_full_nomenclature' => $nomenclature,
-                        'post_code' => $site->getPostCode(),
-                        'region' => $site->getRegion());
+                        'post_code' => $site->getSite()->getPostCode(),
+                        'region' => $site->getSite()->getRegion());
                 }
             }
             $jsonData = json_encode($tpl);
@@ -216,6 +237,91 @@ class Speedy_Speedyshipping_Model_Autocomplete_Address extends Mage_Core_Model_A
         }
     }
 
+    public function getStates() {
+        $session = Mage::getSingleton('checkout/session');
+        $stateName = $this->_request->getParam('term');
+        $countryId = (int)$this->_request->getParam('countryid');
+        //$stateName = Mage::helper('speedyshippingmodule/transliterate')->transliterate($stateName);
+        $lang = Mage::helper('speedyshippingmodule/transliterate')->getLanguage($stateName);
+        $countryIso = $this->_request->getParam('countryiso');
+        if ($countryIso != 'BG') {
+            $lang = 'EN';
+        }
+        //$city = strtoupper($address->getCity());
+        try {
+            if ($countryId) {
+               $states = $this->_speedyEPS->listStates($countryId, $stateName);
+            }
+        } catch (ServerException $se) {
+            Mage::log($se->getMessage(),null,'speedyLog.log');
+        }
+        if (isset($states)) {
+            $tpl = array();
+
+            if ($states) {
+                foreach ($states as $state) {
+                    $tpl[] = array(
+                        'value' => $state->getStateId(),
+                        'label' => $state->getName(),
+                        'code' => $state->getStateAlpha(),
+                        'country_id' => $state->getCountryId()
+                    );
+                }
+            }
+
+            $jsonData = json_encode($tpl);
+            //header("Content-Type: text/html; charset=UTF-8");
+            return $jsonData;
+        } else {
+            return FALSE;
+        }
+    }
+
+    public function getCountries() {
+        $countryName = $this->_request->getParam('term');
+        $countryIso = $this->_request->getParam('countryiso');
+        $lang = Mage::helper('speedyshippingmodule/transliterate')->getLanguage($countryName);
+        if ($countryIso != 'BG') {
+            $lang = 'EN';
+        }
+        try {
+            require_once Mage::getBaseDir('lib') . DS . 'SpeedyEPS' . DS . 'ver01' . DS . 'ParamFilterCountry.class.php';
+            $ParamFilterCountry = new ParamFilterCountry();
+            if ($countryIso) {
+                $ParamFilterCountry->setIsoAlpha2($countryIso);
+            }
+
+            $countries = $this->_speedyEPS->listCountriesEx($ParamFilterCountry, $lang);
+        } catch (ServerException $se) {
+            Mage::log($se->getMessage(),null,'speedyLog.log');
+        }
+
+        if (isset($countries)) {
+            $tpl = array();
+
+            foreach ($countries as $country) {
+                $tpl[$country->getIsoAlpha2()] = array(
+                    'id'                   => $country->getCountryId(),
+                    'name'                 => $country->getName(),
+                    'label'                => $country->getName(),
+                    'iso_code_2'           => $country->getIsoAlpha2(),
+                    'iso_code_3'           => $country->getIsoAlpha3(),
+                    'nomenclature'         => ($country->getSiteNomen()) ? 'FULL' : '',
+                    'required_state'       => (int)$country->isRequireState(),
+                    'required_postcode'    => (int)$country->isRequirePostCode(),
+                    'active_currency_code' => $country->getActiveCurrencyCode(),
+                    'is_full_nomenclature' => (int)$country->getSiteNomen(),
+                );
+            }
+
+            $jsonData = json_encode($tpl);
+            //header("Content-Type: text/html; charset=UTF-8");
+            return $jsonData;
+        } else {
+            return FALSE;
+        }
+    }
+
     /**
      * This method loads information about living quarters (if any) in 
      * particular site. Please note that in order to retriver anything the
@@ -230,6 +336,10 @@ class Speedy_Speedyshipping_Model_Autocomplete_Address extends Mage_Core_Model_A
         //$quarterName = Mage::helper('speedyshippingmodule/transliterate')->transliterate($quarterName);
         $lang = Mage::helper('speedyshippingmodule/transliterate')->getLanguage($quarterName);
         $currentSpeedyAddress = $session->getSpeedyAddress();
+        $countryIso = $this->_request->getParam('countryiso');
+        if ($countryIso != 'BG') {
+            $lang = 'EN';
+        }
         //$city = strtoupper($address->getCity());
         try {
             $quarters = $this->_speedyEPS->listQuarters($quarterName, $cityId, $lang);
@@ -270,6 +380,10 @@ class Speedy_Speedyshipping_Model_Autocomplete_Address extends Mage_Core_Model_A
         $streetName = $this->_request->getParam('term');
         //$streetName = Mage::helper('speedyshippingmodule/transliterate')->transliterate($streetName);
         $lang = Mage::helper('speedyshippingmodule/transliterate')->getLanguage($streetName);
+        $countryIso = $this->_request->getParam('countryiso');
+        if ($countryIso != 'BG') {
+            $lang = 'EN';
+        }
         //Initialize empty array
         $streets = array();
         try {
@@ -302,6 +416,10 @@ class Speedy_Speedyshipping_Model_Autocomplete_Address extends Mage_Core_Model_A
         $cityId = (int) $this->_request->getParam('cityid');
         $blockName = $this->_request->getParam('term');
         $lang = Mage::helper('speedyshippingmodule/transliterate')->getLanguage($blockName);
+        $countryIso = $this->_request->getParam('countryiso');
+        if ($countryIso != 'BG') {
+            $lang = 'EN';
+        }
         // $streetName = Mage::helper('speedyshippingmodule/transliterate')->transliterate($streetName);
         try {
             $blocks = $this->_speedyEPS->listBlocks($blockName, $cityId, $lang);

@@ -5,7 +5,13 @@
         var deferredDays = "";
 <?php endif; ?>
 
-
+<?php if (!$this->_isAbroad): ?>
+    <?php if ($this->_optionsBeforePayment): ?>
+            var optionsBeforePayment = "<?php echo $this->_optionsBeforePayment; ?>";
+    <?php else: ?>
+            var optionsBeforePayment = "";
+    <?php endif; ?>
+<?php endif; ?>
 
     function getAllElementsWithAttributeValue(attribute, value)
     {
@@ -98,9 +104,30 @@ document.getElementById('shipment_tracking_info').style.display = 'none';
 
         </select>
     </div>
+
+    <?php if (!$this->_isAbroad): ?>
+    <div id="speedyOptionsBeforePayment" style="margin: 5px 15px; ">
+        <span><?php echo $this->__('options_before_payment') ?></span>
+        <select onchange="optionsBeforePayment = this.value;" name="speedy_options_before_payment" id="speedy_options_before_payment">
+            <?php foreach (Mage::getModel('speedyshippingmodule/carrier_source_beforepayment')->toOptionArray() as $option): ?>
+
+                <?php if ($option['value'] == $this->_optionsBeforePayment): ?>
+                    <?php echo '<option value ="' . $option['value'] . '" selected="selected">' . $option['label'] . '</option>'; ?>
+                <?php else: ?>
+                    <?php echo '<option value ="' . $option['value']. '">' . $option['label'] . '</option>'; ?>
+                <?php endif; ?>
+
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <?php endif; ?>
+
     <script>
         var baseRef = document.getElementById('packaging_window').getElementsByClassName('entry-edit')[0];
         var packButtons = baseRef.getElementsByClassName('a-right')[0];
+        <?php if (!$this->_isAbroad): ?>
+        baseRef.insertBefore(document.getElementById('speedyOptionsBeforePayment'), packButtons);
+        <?php endif; ?>
         baseRef.insertBefore(document.getElementById('speedyDeferredDays'), packButtons);
     </script>
     <script>
@@ -134,11 +161,17 @@ document.getElementById('shipment_tracking_info').style.display = 'none';
                                         var confirmBox = confirm(response.message);
                                         if (confirmBox == true) {
                                             packaging.paramsCreateLabelRequest['deferred_days'] = deferredDays;
+                                            <?php if (!$this->_isAbroad): ?>
+                                            packaging.paramsCreateLabelRequest['options_before_payment'] = optionsBeforePayment;
+                                            <?php endif; ?>
                                             magentoCallback();
                                         }
                                     } else if (response.ok) {
                                         //this.labelCreatedCallback(response);
                                         packaging.paramsCreateLabelRequest['deferred_days'] = deferredDays;
+                                        <?php if (!$this->_isAbroad): ?>
+                                        packaging.paramsCreateLabelRequest['options_before_payment'] = optionsBeforePayment;
+                                        <?php endif; ?>
                                         magentoCallback();
                                     }
                                 }

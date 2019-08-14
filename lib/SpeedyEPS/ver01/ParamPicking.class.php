@@ -8,6 +8,7 @@ require_once 'ParamOptionsBeforePayment.class.php';
 require_once 'ParamPackings.class.php';
 require_once 'ParamReturnServiceRequest.class.php';
 require_once 'ParamReturnShipmentRequest.class.php';
+require_once 'ParamReturnVoucher.class.php';
 
 /**
  * Instances of this class are passed as a parameter of Speedy web service calls for calclualation and registration
@@ -370,6 +371,30 @@ class ParamPicking {
      * since 2.5.0
      */
     private $_retShipmentRequest;
+
+    /**
+     * Specifies details for return voucher
+     * MANDATORY: NO
+     * @var returnVoucher
+     * @since 2.9.0
+     */
+    private $_returnVoucher;
+
+    /**
+     * Specifies details for delivery to floor No (max 99)
+     * MANDATORY: NO
+     * @var returnVoucher
+     * @since 2.9.0
+     */
+    private $_deliveryToFloorNo;
+
+    /**
+     * Flag indicating whether the shipping price should be included into the cash on delivery price.
+     * MANDATORY: NO
+     * @var boolean
+     * @since 2.9.0
+     */
+    private $_includeShippingPriceInCod;
 
     /**
      * Set BOL number
@@ -1130,6 +1155,56 @@ class ParamPicking {
     }
 
     /**
+     * Set Specifies details for return voucher
+     * @param returnVoucher $returnVoucher
+     */
+    public function setReturnVoucher($returnVoucher) {
+        $this->_returnVoucher = $returnVoucher;
+    }
+
+    /**
+     * Get Specifies details for return voucher
+     * @return returnVoucher
+     */
+    public function getReturnVoucher() {
+        return $this->_returnVoucher;
+    }
+
+
+    /**
+     * Set Specifies details for delivery to floor
+     * @param deliveryToFloorNo $deliveryToFloorNo
+     */
+    public function setDeliveryToFloorNo($deliveryToFloorNo) {
+        $this->_deliveryToFloorNo = $deliveryToFloorNo;
+    }
+
+    /**
+     * Get Specifies details for delivery to floor
+     * @return deliveryToFloorNo
+     */
+    public function getDeliveryToFloorNo() {
+        return $this->_deliveryToFloorNo;
+    }
+
+    /**
+     * Set Flag indicating whether the shipping price should be included into the cash on delivery price.
+     * @param boolean
+     */
+    public function setIncludeShippingPriceInCod($includeShippingPriceInCod) {
+        $this->_includeShippingPriceInCod = $includeShippingPriceInCod;
+    }
+
+    /**
+     * Get Flag indicating whether the shipping price should be included into the cash on delivery price.
+     * @return boolean
+     */
+    public function getIncludeShippingPriceInCod() {
+        return $this->_includeShippingPriceInCod;
+    }
+
+
+    /**
      * Return standard class from this class
      * @return stdClass
      */
@@ -1227,6 +1302,19 @@ class ParamPicking {
         if (isset($this->_retShipmentRequest)) {
             $stdClass->retShipmentRequest       = $this->_retShipmentRequest->toStdClass();
         }
+
+        if (isset($this->_returnVoucher)) {
+            $stdClass->returnVoucher = $this->_returnVoucher->toStdClass();
+        }
+
+        if (isset($this->_deliveryToFloorNo)) {
+            $stdClass->deliveryToFloorNo = $this->_deliveryToFloorNo;
+        }
+
+        if (isset($this->_includeShippingPriceInCod)) {
+            $stdClass->includeShippingPriceInCod = $this->_includeShippingPriceInCod;
+        }
+
         return $stdClass;
     }
 }

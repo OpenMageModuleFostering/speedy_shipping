@@ -30,7 +30,9 @@ class Speedy_Speedyshipping_Block_Onepage_Billing_Billing
         
         $ids = array();
         foreach($customer->getAddresses() as $address){
-            if($address->getSpeedySiteId()){
+            if($address->getCountryId() == 'BG' && $address->getSpeedySiteId()){
+                $ids[] = $address->getId();
+            } elseif ($address->getCountryId() != 'BG' && $address->getCity()) {
                 $ids[] = $address->getId();
             }
         }

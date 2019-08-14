@@ -20,7 +20,7 @@ class ResultCourierServiceExt extends ResultCourierService {
     function __construct($stdClassResultCourierServiceExt) {
         parent::__construct($stdClassResultCourierServiceExt);
         $this->_deliveryDeadline = isset($stdClassResultCourierServiceExt->deliveryDeadline) ? $stdClassResultCourierServiceExt->deliveryDeadline : null;
-    }
+   }
 
     /**
      * Get deadline for shipment delivery
@@ -29,5 +29,6 @@ class ResultCourierServiceExt extends ResultCourierService {
     public function getDeliveryDeadline() {
         return $this->_deliveryDeadline;
     }
+
 }
 ?>

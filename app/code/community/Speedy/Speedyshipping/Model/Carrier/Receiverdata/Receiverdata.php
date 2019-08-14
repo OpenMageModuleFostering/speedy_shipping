@@ -25,7 +25,6 @@ class Speedy_Speedyshipping_Model_Carrier_Receiverdata_ReceiverData {
         } else {
             $receiverData->address->siteID = $address->getReceiverCityId(); //'БУРГАС';
 
-            
             $receiverData->address->quarterName = null;
             if(!$address->getQuarterId()){
             $receiverData->address->quarterName = $address->getSpeedyQuarterName();
@@ -51,7 +50,14 @@ class Speedy_Speedyshipping_Model_Carrier_Receiverdata_ReceiverData {
             $receiverData->address->speedyApartment = $address->getSpeedyApartment();
 
             $receiverData->address->speedyAddressNote = $address->getSpeedyAddressNote();
-            
+
+            $receiverData->address->speedyCountryId = $address->getSpeedyCountryId();
+            $receiverData->address->speedyStateId = $address->getSpeedyStateId();
+            $receiverData->address->city = $address->getCity();
+            $receiverData->address->postcode = $address->getPostcode();
+            $receiverData->address->street1 = $address->getStreet1();
+            $receiverData->address->street2 = $address->getStreet2();
+
             $receiverData->partnerName = $name;
             //$receiverData->contactName = $this->_request->getRecipientContactPersonName();
             $receiverData->contactPhone = $phone;

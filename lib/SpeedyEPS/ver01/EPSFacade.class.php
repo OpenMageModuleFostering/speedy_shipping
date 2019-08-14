@@ -226,16 +226,22 @@ class EPSFacade {
      * @param ParamLanguage $language language (added in 2.5.0)
      * @throws ServerException Thrown in case communication with server has failed
      * @return array List of ResultCourierServiceExt instances
-    */
+     * @param $senderId  (signed 64-bit integer nullable) – Sender ID (added in 2.9.0);
+     * @param $receiverId (signed 64-bit integer nullable) – Receiver ID (added in 2.9.0);
+     * @param $senderOfficeId (signed 64-bit integer nullable) – Sender office ID (added in 2.9.0);
+     * @param $receiverOfficeId (signed 64-bit integer nullable) – Receiver office ID (added in 2.9.0);
+   */
     public function listServicesForSites(
         $date, $senderSiteId, $receiverSiteId, 
-        $senderCountryId = null, $senderPostCode = null, $receiverCountryId = null, $receiverPostCode = null, $language = null
+        $senderCountryId = null, $senderPostCode = null, $receiverCountryId = null, $receiverPostCode = null, $language = null,
+        $senderId = null, $receiverId = null, $senderOfficeId = null, $receiverOfficeId = null
     ) {
         $this->checkStateBeforeCall();
         return $this->_epsInterfaceImpl->listServicesForSites(
             $this->getResultLogin(true)->getSessionId(), $date, $senderSiteId, $receiverSiteId, 
-            $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode, $language
-        );
+            $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode, $language,
+            $senderId, $receiverId, $senderOfficeId, $receiverOfficeId
+       );
     }
 
     /**
@@ -252,16 +258,22 @@ class EPSFacade {
      * @param string $receiverPostCode Receiver's post code (added in 2.5.0)
      * @throws ClientException Thrown in case EPS interface implementation is not set
      * @throws ServerException Thrown in case communication with server has failed
+     * @param $senderId  (signed 64-bit integer nullable) – Sender ID (added in 2.9.0);
+     * @param $receiverId (signed 64-bit integer nullable) – Receiver ID (added in 2.9.0);
+     * @param $senderOfficeId (signed 64-bit integer nullable) – Sender office ID (added in 2.9.0);
+     * @param $receiverOfficeId (signed 64-bit integer nullable) – Receiver office ID (added in 2.9.0);
      * @return ResultMinMaxReal
      */
     public function getWeightInterval(
         $serviceTypeId, $senderSiteId, $receiverSiteId, $date, $documents,
-        $senderCountryId = null, $senderPostCode = null, $receiverCountryId = null, $receiverPostCode = null
+        $senderCountryId = null, $senderPostCode = null, $receiverCountryId = null, $receiverPostCode = null,
+        $senderId = null, $receiverId = null, $senderOfficeId = null, $receiverOfficeId = null
     ) {
         $this->checkStateBeforeCall();
         return $this->_epsInterfaceImpl->getWeightInterval(
                 $this->getResultLogin(true)->getSessionId(), $serviceTypeId, $senderSiteId, $receiverSiteId, $date, $documents,
-                $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode
+                $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode,
+                $senderId, $receiverId, $senderOfficeId, $receiverOfficeId
         );
     }
 
@@ -467,15 +479,16 @@ class EPSFacade {
      * @param string $senderPostCode Sender's post code (added in 2.5.0)     
      * @throws ClientException Thrown in case EPS interface implementation is not set
      * @throws ServerException Thrown in case communication with server has failed
+     * @param integer $senderId Signed 64-bit Sender's ID (added in 2.9.0)
      * @return array List of dates
      */
     public function getAllowedDaysForTaking(
-        $serviceTypeId, $senderSiteId, $senderOfficeId, $minDate, $senderCountryId = null, $senderPostCode = null
+        $serviceTypeId, $senderSiteId, $senderOfficeId, $minDate, $senderCountryId = null, $senderPostCode = null, $senderId = null
     ) {
         $this->checkStateBeforeCall();
         return $this->_epsInterfaceImpl->getAllowedDaysForTaking(
                 $this->getResultLogin(true)->getSessionId(), $serviceTypeId, $senderSiteId, $senderOfficeId, $minDate,
-                $senderCountryId, $senderPostCode
+                $senderCountryId, $senderPostCode, $senderId
         );
     }
 
@@ -682,7 +695,7 @@ class EPSFacade {
      * This method can be used to track the state/history of a shipment.
      * @deprecated Use trackPickingEx instead
      * @since 1.0
-     * @param integer $billOfLading Signed 64-bit
+     * @param integer $billOfLading Signed 64-bit (@since 2.9.0 @param string $billOfLading)
      * @throws ClientException Thrown in case EPS interface implementation is not set
      * @throws ServerException Thrown in case communication with server has failed
      * @return array List of ResultTrackPicking
@@ -695,42 +708,48 @@ class EPSFacade {
     /**
      * This method can be used to track the state/history of a shipment.
      * @since 1.2
-     * @param integer $billOfLading Signed 64-bit
+     * @param integer $billOfLading Signed 64-bit (@since 2.9.0 @param string $billOfLading)
      * @param ParamLanguage $language BG or EN. If set to null the server defaults to BG
      * @throws ClientException Thrown in case EPS interface implementation is not set
      * @throws ServerException Thrown in case communication with server has failed
      * @return array List of ResultTrackPickingEx
+     * @since 2.9.0
+     * @param boolean returnOnlyLastOperation; false is the default value
      */
-    public function trackPickingEx($billOfLading, $language) {
+    public function trackPickingEx($billOfLading, $language, $returnOnlyLastOperation = false) {
         $this->checkStateBeforeCall();
-        return $this->_epsInterfaceImpl->trackPickingEx($this->getResultLogin(true)->getSessionId(), $billOfLading, $language);
+        return $this->_epsInterfaceImpl->trackPickingEx($this->getResultLogin(true)->getSessionId(), $billOfLading, $language, $returnOnlyLastOperation);
     }
     
     /**
      * This method can be used to track the state/history of a shipment.
      * @since 1.4
-     * @param integer $parcelId Signed 64-bit
+     * @param integer $parcelId Signed 64-bit (@since 2.9.0 @param string $parcelId)
      * @param ParamLanguage $language BG or EN. If set to null the server defaults to BG
      * @throws ClientException Thrown in case EPS interface implementation is not set
      * @throws ServerException Thrown in case communication with server has failed
      * @return array List of ResultTrackPickingEx
+     * @since 2.9.0
+     * @param boolean returnOnlyLastOperation; false is the default value
      */
-    public function trackParcel($parcelId, $language) {
+    public function trackParcel($parcelId, $language, $returnOnlyLastOperation = false) {
         $this->checkStateBeforeCall();
-        return $this->_epsInterfaceImpl->trackParcel($this->getResultLogin(true)->getSessionId(), $parcelId, $language);
+        return $this->_epsInterfaceImpl->trackParcel($this->getResultLogin(true)->getSessionId(), $parcelId, $language, $returnOnlyLastOperation);
     }
 
 	/**
      * This method can be used to track the state/history of a shipment parcel.
      * @since 2.8.0
-     * @param List of integer (Signed 64-bit) $barcodes  
+     * @param List of integer (Signed 64-bit) $barcodes (@since 2.9.0 @param string $barcodes) 
      * @param ParamLanguage $language BG or EN. If set to null the server defaults to BG
      * @throws ServerException Thrown in case communication with server has failed
      * @return array List of ResultTrackPickingEx
+     * @since 2.9.0
+     * @param boolean returnOnlyLastOperation; false is the default value
      */
-    public function trackParcelMultiple($barcodes, $language) {
+    public function trackParcelMultiple($barcodes, $language, $returnOnlyLastOperation = false) {
 		$this->checkStateBeforeCall();
-		return $this->_epsInterfaceImpl->trackParcelMultiple($this->getResultLogin(true)->getSessionId(), $barcodes, $language);
+		return $this->_epsInterfaceImpl->trackParcelMultiple($this->getResultLogin(true)->getSessionId(), $barcodes, $language, $returnOnlyLastOperation);
     }
     
 
@@ -980,6 +999,17 @@ class EPSFacade {
     public function searchSecondaryPickings($paramSearchSecondaryPickings) {
     	$this->checkStateBeforeCall();
         return $this->_epsInterfaceImpl->searchSecondaryPickings($this->getResultLogin(true)->getSessionId(), $paramSearchSecondaryPickings);
+    } 
+
+    /**
+     * Returns extended information about the picking with the specified billOfLading. 
+     * @param  integer $billOfLading signed 64-bit
+     * @return List of ResultPickingExtendedInfo Information about picking
+     * @since 2.9.0
+     */
+    public function getPickingExtendedInfo($billOfLading) {
+    	$this->checkStateBeforeCall();
+        return $this->_epsInterfaceImpl->getPickingExtendedInfo($this->getResultLogin(true)->getSessionId(), $billOfLading);
     } 
 }
 ?>

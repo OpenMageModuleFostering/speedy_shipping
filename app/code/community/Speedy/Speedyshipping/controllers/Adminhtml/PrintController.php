@@ -25,12 +25,6 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
     protected $_city_id;
 
     /**
-     * A std class, that holds various pieces of sender data( address, phone, etc.)
-     * @var type 
-     */
-    protected $_senderData;
-
-    /**
      * A std class, that holds various pieces of receiver data( address, phone, etc.)
      * @var type 
      */
@@ -155,6 +149,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
      */
     protected $_takingTime = null;
     protected $_deferredDays = null;
+    protected $_optionsBeforePayment = null;
 
     public function __construct(Zend_Controller_Request_Abstract $request, Zend_Controller_Response_Abstract $response, array $invokeArgs = array()) {
 
@@ -205,7 +200,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
      */
     protected function createOrderRequest(array $bolIDS) {
         $paramOrder = new ParamOrder();
-        $paramOrder->setBillOfLadingsList($bolIDS);
+        $paramOrder->setBillOfLadingsList(array_map('floatval', $bolIDS));
         $paramOrder->setBillOfLadingsToIncludeType(ParamOrder::ORDER_BOL_INCLUDE_TYPE_EXPLICIT);
 
         $phonenumber = Mage::getStoreConfig('carriers/speedyshippingmodule/contact_telephone');
@@ -629,7 +624,6 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
      */
     public function createLabelAction() {
 
-
         $orderId = $this->getRequest()->getParam('order_id');
         $shipmentId = $this->getRequest()->getParam('shipment_id');
         //$forceBolCreation = $this->getRequest()->getParam('forceBolCreation', false);
@@ -674,7 +668,6 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         } else {
             $time = time();
         }
-
 
         $takingTime = null;
 
@@ -737,15 +730,6 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         $receiverPhone = $this->_shippingAddress->getTelephone();
 
         /**
-         * Setup sender data
-         */
-        $sender = Mage::getModel('speedyshippingmodule/carrier_senderdata_senderdata');
-
-        $sender->setSenderData($this->_senderData);
-
-        $this->_senderData = $sender->getSenderData();
-
-        /**
          * Setup receiver data
          */
         $receiver = Mage::getModel('speedyshippingmodule/carrier_receiverdata_receiverdata');
@@ -755,6 +739,8 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         $this->_receiverData = $receiver->getReceiverData();
 
         $this->_deferredDays = (int) $this->getRequest()->getParam('deferred_days');
+
+        $this->_optionsBeforePayment = $this->getRequest()->getParam('options_before_payment');
 
         /**
          * Setup picking data
@@ -808,6 +794,8 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
 
 
             $this->_speedyData->setDeferredDeliveryWorkdays($this->_deferredDays);
+
+            $this->_speedyData->setOptionsBeforePayment($this->_optionsBeforePayment);
 
 
 
@@ -911,7 +899,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
 
         //If customer has configured that she has a printer, print a label
         if ($this->_hasPrinter) {
-            $pickingParcels = $this->_speedyEPS->getPickingParcels($speedyData->getBolId());
+            $pickingParcels = $this->_speedyEPS->getPickingParcels((float)$speedyData->getBolId());
 
             $ids = array();
 
@@ -923,7 +911,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         }
         //Otherwise print a regular bill of lading
         else {
-            $paramPDF->setIds($speedyData->getBolId());
+            $paramPDF->setIds((float)$speedyData->getBolId());
             $paramPDF->setType(ParamPDF::PARAM_PDF_TYPE_BOL);
         }
         $paramPDF->setIncludeAutoPrintJS(TRUE);
@@ -998,7 +986,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
                 $speedyData->setBolDatetime(null);
                 $speedyData->save();
 
-                $this->_speedyEPS->invalidatePicking($bolID);
+                $this->_speedyEPS->invalidatePicking((float)$bolID);
 
                 $isBolCanceled = TRUE;
 
@@ -1099,7 +1087,12 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         }
 
         $receiverAddress = new ParamAddress();
-        $receiverAddress->setSiteId($this->_receiverData->address->siteID);
+
+        if (!empty($this->_receiverData->address->siteID)) {
+            $receiverAddress->setSiteId($this->_receiverData->address->siteID);
+        } else {
+            $receiverAddress->setSiteName($this->_receiverData->address->city);
+        }
 
         if ($this->_receiverData->address->quarterName) {
             $receiverAddress->setQuarterName($this->_receiverData->address->quarterName);
@@ -1138,7 +1131,18 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         if ($this->_receiverData->address->speedyAddressNote) {
             $receiverAddress->setAddressNote($this->_receiverData->address->speedyAddressNote);
         }
-        
+
+        if ($this->_receiverData->address->speedyStateId) {
+            $receiverAddress->setStateId($this->_receiverData->address->speedyStateId);
+        }
+
+        if (!empty($this->_receiverData->address->speedyCountryId)) {
+            $receiverAddress->setPostCode($this->_receiverData->address->postcode);
+            $receiverAddress->setFrnAddressLine1($this->_receiverData->address->street1);
+            $receiverAddress->setFrnAddressLine2($this->_receiverData->address->street2);
+            $receiverAddress->setCountryId($this->_receiverData->address->speedyCountryId);
+        }
+
         $receiver = new ParamClientData();
 
         $receiver->setPartnerName($this->_receiverData->partnerName);
@@ -1153,7 +1157,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         $picking = new ParamPicking();
 
         //DO NOT CHANGE THIS LINE
-        $picking->setClientSystemId(1307306134);
+        $picking->setClientSystemId(1307306200);
         $picking->setRef1($this->_orderID);
 
         $size = $this->getParcelSizes();
@@ -1240,31 +1244,73 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
 
         $picking->setDeferredDeliveryWorkDays($this->_deferredDays);
 
+        $optionBeforePayment = new ParamOptionsBeforePayment();
+
         if ($this->_orderData->getIsCod()) {
+            if ($this->_optionsBeforePayment == 'open') {
+                $optionBeforePayment->setOpen(true);
+            } elseif ($this->_optionsBeforePayment == 'test') {
+                $optionBeforePayment->setTest(true);
+            }
+
             $isFixed = Mage::getStoreConfig('carriers/speedyshippingmodule/fixed_pricing_enable');
             if ($isFixed == 2) {
 
                 $fixedPrice = Mage::getStoreConfig('carriers/speedyshippingmodule/fixedPrice');
                 if ($this->_isFreeShipping) {
-                    $picking->setAmountCodBase($this->_codAmount);
+                    $totalAmount = $this->_codAmount;
                 } else {
                     $taxCalculator = Mage::helper('tax');
-                    $picking->setAmountCodBase($this->_codAmount + $this->_shippingAmount);
+                    $totalAmount = $this->_codAmount + $this->_shippingAmount;
                 }
             } else if ($isFixed == 3) {
                 if ($this->_isFreeShipping) {
-                    $picking->setAmountCodBase($this->_codAmount);
+                    $totalAmount = $this->_codAmount;
                 } else {
                     $taxCalculator = Mage::helper('tax');
                     $chargeAmount = Mage::getStoreConfig('carriers/speedyshippingmodule/handlingCharge');
                     $chargeWithTaxApplied = $taxCalculator->getShippingPrice($chargeAmount, true);
-                    $picking->setAmountCodBase($this->_codAmount + $chargeWithTaxApplied);
+                    $totalAmount = $this->_codAmount + $chargeWithTaxApplied;
+                }
+            } else if ($isFixed == 4) {
+                if ($this->_isFreeShipping) {
+                    $totalAmount = $this->_codAmount;
+                } else {
+                    $tablerates = Mage::getModel('speedyshippingmodule/carrier_tablerate')->getCollection()->setServiceIdFilter($this->_orderData->getServiceTypeId())->setTakeFromOfficeFilter($this->_orderData->getPickFromOffice())->setWeightFilter($totalWeight)->setTotalFilter($this->_codAmount)->setOrderField('weight')->setOrderField('order_total')->getData();
+                    if ($tablerates && isset($tablerates[0])) {
+                        $taxCalculator = Mage::helper('tax');
+                        $shippingPrice = $taxCalculator->getShippingPrice((float)$tablerates[0]['price_without_vat'], true);
+                    } else {
+                        $shippingPrice = $this->_shippingAmount;
+                    }
+
+                    $totalAmount = $this->_codAmount + $shippingPrice;
                 }
             } else {
-                $picking->setAmountCodBase($this->_codAmount);
+                $totalAmount = $this->_codAmount;
             }
         } else {
+            $totalAmount = 0;
+        }
+
+        $picking->setOptionsBeforePayment($optionBeforePayment);
+
+        if ($this->_orderData->getSpeedyActiveCurrencyCode()) {
+            $allowedCurrencies = Mage::getModel('directory/currency')->getConfigAllowCurrencies();
+            $rates = Mage::getModel('directory/currency')->getCurrencyRates(Mage::app()->getBaseCurrencyCode(), array_values($allowedCurrencies));
+            if (isset($rates[$this->_orderData->getSpeedyActiveCurrencyCode()])) {
+                $picking->setAmountCodBase(Mage::helper('directory')->currencyConvert($totalAmount, Mage::app()->getStore()->getBaseCurrencyCode(), $this->_orderData->getSpeedyActiveCurrencyCode()));
+            }
+        }
+
+        if ($this->_orderData->getIsCod() && (Mage::getStoreConfigFlag('carriers/speedyshippingmodule/money_transfer') && $this->_orderData->getCountryId() == 'BG')) {
+            $picking->setRetMoneyTransferReqAmount($totalAmount);
             $picking->setAmountCodBase(0);
+        }
+
+        // if abroad a fixed_pricing_enable == calculator || calculator_fixed
+        if ($this->_orderData->getCountryId() && $this->_orderData->getCountryId() != 'BG' && $this->_orderData->getIsCod() && (Mage::getStoreConfig('carriers/speedyshippingmodule/fixed_pricing_enable') == 1 || $this->config->get('speedy_pricing') == 3)) {
+            $picking->setIncludeShippingPriceInCod(true);
         }
 
         $resultBOL = null;
@@ -1340,6 +1386,41 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
             $orderData->setSpeedyAddressNote($this->_shippingAddress->getSpeedyAddressNote());
         }
 
+        if ($this->_shippingAddress->getSpeedyCountryId()) {
+            $orderData->setSpeedyCountryId($this->_shippingAddress->getSpeedyCountryId());
+        }
+
+        if ($this->_shippingAddress->getSpeedyStateId()) {
+            $orderData->setSpeedyStateId($this->_shippingAddress->getSpeedyStateId());
+        }
+
+        if ($this->_shippingAddress->getCountryId()) {
+            $orderData->setCountryId($this->_shippingAddress->getCountryId());
+        }
+
+        if ($this->_shippingAddress->getCity()) {
+            $orderData->setCity($this->_shippingAddress->getCity());
+        }
+
+        if ($this->_shippingAddress->getPostcode()) {
+            $orderData->setPostcode($this->_shippingAddress->getPostcode());
+        }
+
+        if ($this->_shippingAddress->getStreet()) {
+            $streets = $this->_shippingAddress->getStreet();
+            if ($streets && isset($streets[0])) {
+                $orderData->setStreet1($streets[0]);
+            } else {
+                $orderData->setStreet1('');
+            }
+
+            if ($streets && isset($streets[1])) {
+                $orderData->setStreet2($streets[1]);
+            } else {
+                $orderData->setStreet2('');
+            }
+        }
+
         if ($speedyData->getFixedTime()) {
             $orderData->setFixedTime($speedyData->getFixedTime());
         }
@@ -1362,13 +1443,30 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         if ($speedyData->getIsCod()) {
             $orderData->setIsCod(1);
         }
-        
 
+        if ($this->_shippingAddress->getSpeedyCountryId() || $this->_shippingAddress->getCountryId()) {
+            try {
+                require_once Mage::getBaseDir('lib') . DS . 'SpeedyEPS' . DS . 'ver01' . DS . 'ParamFilterCountry.class.php';
+                $ParamFilterCountry = new ParamFilterCountry();
+                if ($this->_shippingAddress->getSpeedyCountryId()) {
+                    $ParamFilterCountry->setCountryId($this->_shippingAddress->getSpeedyCountryId());
+                } else {
+                    $ParamFilterCountry->setIsoAlpha2($this->_shippingAddress->getCountryId());
+                }
+                $countries = $this->_speedyEPS->listCountriesEx($ParamFilterCountry);
+            } catch (ServerException $se) {
+                Mage::log($se->getMessage(),null,'speedyLog.log');
+            }
+
+            if (isset($countries) && count($countries) == 1) {
+                $orderData->setSpeedyActiveCurrencyCode($countries[0]->getActiveCurrencyCode());
+            }
+        }
 
         //Is fixed prices enabled
         $isFixed = Mage::getStoreConfig('carriers/speedyshippingmodule/fixed_pricing_enable');
 
-        if ($isFixed == 2) {
+        if ($isFixed == 2 || $isFixed == 4 || !$orderData->getSpeedyActiveCurrencyCode()) {
 
             $orderData->setPayerType(ParamCalculation::PAYER_TYPE_SENDER);
         } else if ($speedyData->getPayerType() == 0) {
@@ -1379,9 +1477,18 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
             $orderData->setPayerType(ParamCalculation::PAYER_TYPE_RECEIVER);
         }
 
+        $allowed_pricings = array(
+            1 => 'calculator',
+            3 => 'calculator_fixed'
+        );
 
-
-
+        if ($this->_shippingAddress->getCountryId() != 'BG' ||
+            (Mage::getStoreConfigFlag('carriers/speedyshippingmodule/invoice_courier_sevice_as_text') && 
+            isset($allowed_pricings[$isFixed]) &&
+            !$orderData->getIsCod())
+        ) {
+            $orderData->setPayerType(ParamCalculation::PAYER_TYPE_SENDER);
+        }
 
         $this->_orderData = $orderData;
     }
@@ -1410,13 +1517,10 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         }
 
         try {
-
             $this->_speedyEPSInterfaceImplementaion = new EPSSOAPInterfaceImpl(Mage::getStoreConfig('carriers/speedyshippingmodule/server'));
 
             $this->_speedyEPS = new EPSFacade($this->_speedyEPSInterfaceImplementaion, $user, $pass);
-            $this->_speedySessionId = $this->_speedyEPS->login();
-
-            $this->_senderData = $this->_speedyEPS->getClientById($this->_speedyEPS->getResultLogin()->getClientId());
+            $this->_speedySessionId = $this->_speedyEPS->getResultLogin();
         } catch (Exception $e) {
             Mage::log($e->getMessage(), null, 'speedyLog.log');
             exit();

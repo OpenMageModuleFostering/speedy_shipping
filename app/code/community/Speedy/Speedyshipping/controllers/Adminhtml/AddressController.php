@@ -57,6 +57,22 @@ class Speedy_Speedyshipping_Adminhtml_AddressController extends Mage_Adminhtml_C
         }
     }
 
+    public function getStatesAction() {
+        $result = $this->_addressModel->getStates();
+       
+       if(isset($result)){
+           $this->getResponse()->setBody($result);
+       }
+    }
+
+    public function getCountriesAction() {
+        $result = $this->_addressModel->getCountries();
+       
+       if(isset($result)){
+           $this->getResponse()->setBody($result);
+       }
+    }
+
     public function getBlockAction() {
         $result = $this->_addressModel->getBlock();
 
@@ -96,6 +112,33 @@ class Speedy_Speedyshipping_Adminhtml_AddressController extends Mage_Adminhtml_C
         } catch (Exception $e) {
             throw new Exception('An error has occured while connecting Speedy');
         }
+    }
+
+
+    public function validateAbroudAddressAction() {
+        $this->_initSpeedyService();
+
+        $request = Mage::app()->getRequest();
+
+        $paramAddress = new ParamAddress();
+
+        $paramAddress->setSiteId($request->getParam('speedy_site_id'));
+        $paramAddress->setSiteName($request->getParam('city'));
+        $paramAddress->setPostCode($request->getParam('postcode'));
+        $paramAddress->setFrnAddressLine1($request->getParam('address_1'));
+        $paramAddress->setFrnAddressLine2($request->getParam('address_2'));
+        $paramAddress->setCountryId($request->getParam('speedy_country_id'));
+        $paramAddress->setStateId($request->getParam('state_id'));
+
+        try {
+            $valid = $this->_speedyEPS->validateAddress($paramAddress, 0);
+        } catch (Exception $e) {
+            $valid = $e->getMessage();
+        }
+
+       if(isset($valid)){
+           $this->getResponse()->setBody($valid);
+       }
     }
 
 }

@@ -28,6 +28,7 @@ class Speedy_Speedyshipping_Model_Observer extends Varien_Object {
         $action = $evt->getEvent()->getControllerAction();
         $currentRoute = $controller->getRequest()->getRouteName();
 
+        $this->_initSpeedyService();
 
         /**
          * Validation of customer address on onepage checkout->saveBilling action
@@ -38,13 +39,52 @@ class Speedy_Speedyshipping_Model_Observer extends Varien_Object {
 
             //the address is new
             if (!$customerAddressId) {
-                $isValidSpeedyAddress = $validateHelper->validateSpeedyAddress();
+                // $request = $this->_getRequest();
+                // $actionName = $request->getActionName();
+                $billing_post_address = $controller->getRequest()->getPost('billing');
 
+                if (!empty($billing_post_address['active_currency_code'])) {
+                    $allowedCurrencies = Mage::getModel('directory/currency')->getConfigAllowCurrencies();
+                    $rates = Mage::getModel('directory/currency')->getCurrencyRates(Mage::app()->getBaseCurrencyCode(), array_values($allowedCurrencies));
+                    if (!isset($rates[$billing_post_address['active_currency_code']])) {
+                        $result = array();
+                        $result['error'] = 1;
+                        
+                        $result['message'] = Mage::helper('speedyshippingmodule')->__('The currency %s is missing or invalid. Please contact the administrators of the store!', $billing_post_address['active_currency_code']);
+                        $action->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_DISPATCH, true);
+                        $controller->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+                    }
+                }
+
+                if ($billing_post_address && !empty($billing_post_address['country_id']) && $billing_post_address['country_id'] != 'BG') {
+                    $speedy_address = array(
+                        'city_id'      => (isset($billing_post_address['speedy_site_id']) ? $billing_post_address['speedy_site_id'] : 0),
+                        'city'         => (isset($billing_post_address['city']) ? $billing_post_address['city'] : ''),
+                        'postcode'     => (isset($billing_post_address['postcode']) ? $billing_post_address['postcode'] : ''),
+                        'address_1'    => (isset($billing_post_address['street'][0]) ? $billing_post_address['street'][0] : ''),
+                        'address_2'    => (isset($billing_post_address['street'][1]) ? $billing_post_address['street'][1] : ''),
+                        'country_id'   => (isset($billing_post_address['speedy_country_id']) ? $billing_post_address['speedy_country_id'] : 0),
+                        'state_id'     => (isset($billing_post_address['speedy_state_id']) ? $billing_post_address['speedy_state_id'] : 0),
+                    );
+
+                    $valid = $this->validateAddress($speedy_address);
+                    if ($valid !== true) {
+                         $isValidSpeedyAddress = false;
+                         $message = $valid;
+                    } else {
+                        $isValidSpeedyAddress = true;
+                    }
+                } else {
+                    $isValidSpeedyAddress = $validateHelper->validateSpeedyAddress();
+                    if (!$isValidSpeedyAddress) {
+                        $message = $controller->__("Please enter a valid address");
+                    }
+                }
 
                 if (!$isValidSpeedyAddress) {
                     $result = array();
                     $result['error'] = 1;
-                    $result['message'] = $controller->__("Please enter a valid address"); 
+                    $result['message'] = $message; 
                     $action->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_DISPATCH, true);
                     $controller->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
                 } else {
@@ -73,13 +113,51 @@ class Speedy_Speedyshipping_Model_Observer extends Varien_Object {
 
             //the address is new
             if (!$customerAddressId) {
-                $isValidSpeedyAddress = $validateHelper->validateSpeedyAddress();
+                $shipping_post_address = $controller->getRequest()->getPost('shipping');
+
+                if (!empty($shipping_post_address['active_currency_code'])) {
+                    $allowedCurrencies = Mage::getModel('directory/currency')->getConfigAllowCurrencies();
+                    $rates = Mage::getModel('directory/currency')->getCurrencyRates(Mage::app()->getBaseCurrencyCode(), array_values($allowedCurrencies));
+                    if (!isset($rates[$shipping_post_address['active_currency_code']])) {
+                        $result = array();
+                        $result['error'] = 1;
+                        
+                        $result['message'] = Mage::helper('speedyshippingmodule')->__('The currency %s is missing or invalid. Please contact the administrators of the store!', $billing_post_address['active_currency_code']);
+                        $action->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_DISPATCH, true);
+                        $controller->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+                    }
+                }
+
+                if ($shipping_post_address && !empty($shipping_post_address['country_id']) && $shipping_post_address['country_id'] != 'BG') {
+                    $speedy_address = array(
+                        'city_id'      => (isset($shipping_post_address['speedy_site_id']) ? $shipping_post_address['speedy_site_id'] : 0),
+                        'city'         => (isset($shipping_post_address['city']) ? $shipping_post_address['city'] : ''),
+                        'postcode'     => (isset($shipping_post_address['postcode']) ? $shipping_post_address['postcode'] : ''),
+                        'address_1'    => (isset($shipping_post_address['street'][0]) ? $shipping_post_address['street'][0] : ''),
+                        'address_2'    => (isset($shipping_post_address['street'][1]) ? $shipping_post_address['street'][1] : ''),
+                        'country_id'   => (isset($shipping_post_address['speedy_country_id']) ? $shipping_post_address['speedy_country_id'] : 0),
+                        'state_id'     => (isset($shipping_post_address['speedy_state_id']) ? $shipping_post_address['speedy_state_id'] : 0),
+                    );
+
+                    $valid = $this->validateAddress($speedy_address);
+                    if ($valid !== true) {
+                         $isValidSpeedyAddress = false;
+                         $message = $valid;
+                    } else {
+                        $isValidSpeedyAddress = true;
+                    }
+                } else {
+                    $isValidSpeedyAddress = $validateHelper->validateSpeedyAddress();
+                    if (!$isValidSpeedyAddress) {
+                        $message = $controller->__("Please enter a valid address");
+                    }
+                }
 
 
                 if (!$isValidSpeedyAddress) {
                     $result = array();
                     $result['error'] = 1;
-                    $result['message'] = $controller->__("Please enter a valid address"); 
+                    $result['message'] = $message; 
                     $action->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_DISPATCH, true);
                     $controller->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
                 } else {
@@ -239,6 +317,22 @@ class Speedy_Speedyshipping_Model_Observer extends Varien_Object {
 
                 $controller->getOnepage()->getQuote()->save();
             }
+        } else if ($controllerName == 'onepage' && $actionName == 'savePayment') {
+            $activeCurrencyCode = Mage::getSingleton('checkout/session')->getSpeedyActiveCurrencyCode();
+            $paymentMethod = $controller->getRequest()->getPost('payment');
+            $shippingMethod = $controller->getOnepage()->getQuote()->getShippingAddress()->getShippingMethod();
+            $code = explode('_', $shippingMethod);
+
+            if ($code[0] == 'speedyshippingmodule' && $paymentMethod['method'] == 'cashondelivery' && $activeCurrencyCode) {
+                $allowedCurrencies = Mage::getModel('directory/currency')->getConfigAllowCurrencies();
+                if (!in_array($activeCurrencyCode, $allowedCurrencies)) {
+                    $result = array();
+                    $result['error'] = 1;
+                    $result['message'] = Mage::helper('speedyshippingmodule')->__('You can\'t use Cash on Delivery, the currency %s is missing. Please contact the administrators of the store!', $activeCurrencyCode);
+                    $action->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_DISPATCH, true);
+                    $controller->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+                }
+            }
         } else if ($controllerName == 'address' && $actionName == 'formPost') {
             $validateHelper = Mage::helper('speedyshippingmodule/validate_address');
             $address = Mage::getModel('customer/address');
@@ -321,6 +415,10 @@ class Speedy_Speedyshipping_Model_Observer extends Varien_Object {
                         $address->setSpeedyAddressNote($billingAddress->getSpeedyAddressNote());
 
                         $address->setSpeedyOfficeId($billingAddress->getSpeedyOfficeId());
+
+                        $address->setSpeedyCountryId($billingAddress->getSpeedyCountryId());
+
+                        $address->setSpeedyStateId($billingAddress->getSpeedyStateId());
 
                         //$quote->save();
                     }
@@ -469,8 +567,11 @@ class Speedy_Speedyshipping_Model_Observer extends Varien_Object {
 
                 $freeInterCityMethod = Mage::getStoreConfig('carriers/speedyshippingmodule/free_method_intercity');
 
+                $freeInternationalMethod = explode(',', Mage::getStoreConfig('carriers/speedyshippingmodule/free_method_international'));
+
                 if (($code[1] == $freeCityMethod) ||
-                    ($code[1] == $freeInterCityMethod) || 
+                    ($code[1] == $freeInterCityMethod) ||
+                    in_array($code[1], $freeInternationalMethod) ||
                     ($shippingAmount == 0.000)) {
                     $isFreeShippingChoosen = TRUE;
                 }
@@ -482,7 +583,7 @@ class Speedy_Speedyshipping_Model_Observer extends Varien_Object {
             //Determine who should pay the price for the shipment
 
             if ( ($isEnabled && ($order->getSubtotal() >= (float) $freeMethodSubtotal) && $isFreeShippingChoosen) ||
-                  $shippingAmount == 0.000) {
+                  $shippingAmount == 0.000 || $address->getCountryId() != 'BG') {
                 $saveSpeedyData->setPayerType(ParamCalculation::PAYER_TYPE_SENDER);  //SENDER 
             } else {
                 $saveSpeedyData->setPayerType(ParamCalculation::PAYER_TYPE_RECEIVER);  //RECEIVER 
@@ -616,8 +717,11 @@ class Speedy_Speedyshipping_Model_Observer extends Varien_Object {
 
                 $freeInterCityMethod = Mage::getStoreConfig('carriers/speedyshippingmodule/free_method_intercity');
 
+                $freeInternationalMethod = explode(',', Mage::getStoreConfig('carriers/speedyshippingmodule/free_method_international'));
+
                 if (($code[1] == $freeCityMethod) || 
-                    ($code[1] == $freeInterCityMethod) || 
+                    ($code[1] == $freeInterCityMethod) ||
+                    in_array($code[1], $freeInternationalMethod) ||
                     ($shippingAmount == 0.000)) {
                     $isFreeShippingChoosen = TRUE;
                 }
@@ -627,7 +731,7 @@ class Speedy_Speedyshipping_Model_Observer extends Varien_Object {
 
 
             if ( ($isEnabled && ($order->getSubtotal() >= (float) $freeMethodSubtotal) && $isFreeShippingChoosen) ||
-                  $shippingAmount == 0.000) {
+                  $shippingAmount == 0.000 || $address->getCountryId() != 'BG') {
                 $saveSpeedyData->setPayerType(ParamCalculation::PAYER_TYPE_SENDER);  //SENDER 
             } else {
                 $saveSpeedyData->setPayerType(ParamCalculation::PAYER_TYPE_RECEIVER);  //RECEIVER 
@@ -700,7 +804,7 @@ class Speedy_Speedyshipping_Model_Observer extends Varien_Object {
 
             $this->_initSpeedyService();
             try {
-                $this->_speedyEPS->invalidatePicking($bolID);
+                $this->_speedyEPS->invalidatePicking((float)$bolID);
                 $isBolCanceled = TRUE;
             } catch (ServerException $se) {
                 Mage::log($se->getMessage(), null, 'speedyLog.log');
@@ -912,15 +1016,81 @@ class Speedy_Speedyshipping_Model_Observer extends Varien_Object {
                     new EPSSOAPInterfaceImpl(Mage::getStoreConfig('carriers/speedyshippingmodule/server'));
 
             $this->_speedyEPS = new EPSFacade($this->_speedyEPSInterfaceImplementaion, $user, $pass);
-            $this->_speedySessionId = $this->_speedyEPS->login();
-
-            $this->_senderData = $this->_speedyEPS->getClientById($this->_speedyEPS->getResultLogin()->getClientId());
+            $this->_speedySessionId = $this->_speedyEPS->getResultLogin();
         } catch (Exception $e) {
             Mage::log($e->getMessage(), null, 'speedyLog.log');
             exit();
         }
     }
 
+    public function validateAddress($address) {
+        $paramAddress = new ParamAddress();
+
+        $paramAddress->setSiteId($address['city_id']);
+        $paramAddress->setSiteName($address['city']);
+        $paramAddress->setPostCode($address['postcode']);
+        $paramAddress->setFrnAddressLine1($address['address_1']);
+        $paramAddress->setFrnAddressLine2($address['address_2']);
+        $paramAddress->setCountryId($address['country_id']);
+        $paramAddress->setStateId($address['state_id']);
+
+        try {
+            $valid = $this->_speedyEPS->validateAddress($paramAddress, 0);
+        } catch (Exception $e) {
+            if (strpos($e->getMessage(), 'Invalid post code for specified country') || strpos($e->getMessage(), 'Invalid post code for site') || strpos($e->getMessage(), 'VALUE_OUT_OF_RANGE_ADDRESS_FIELD')) {
+                $valid = Mage::helper('speedyshippingmodule')->__("Please enter a valid postcode");
+            } else {
+                $valid = Mage::helper('speedyshippingmodule')->__("Please enter a valid address");
+            }
+        }
+
+        return $valid;
+    }
+
+    /**
+     * @param Varien_Event_Observer $observer
+     */
+    public function restrictPaymentsCd($observer)
+    {
+        if ($observer->getEvent()->hasQuote()) {
+            $activeCurrencyCode = Mage::getSingleton('checkout/session')->getSpeedyActiveCurrencyCode();
+            $paymentMethod = $observer->getEvent()->getMethodInstance()->getCode();
+            $shippingMethod = $observer->getEvent()->getQuote()->getShippingAddress()->getShippingMethod();
+            $code = explode('_', $shippingMethod);
+
+            if ($code[0] == 'speedyshippingmodule' && $paymentMethod == 'cashondelivery' && !$activeCurrencyCode) {
+                $observer->getEvent()->getResult()->isAvailable = false;
+            }
+        }
+    }
+
+    /**
+     * @param Varien_Event_Observer $observer
+     */
+    public function collectTotals($observer)
+    {
+        if (Mage::getStoreConfigFlag('carriers/speedyshippingmodule/invoice_courier_sevice_as_text') && $observer->getEvent()->hasQuote()) {
+            $shippingAddress = $observer->getEvent()->getQuote()->getShippingAddress();
+            $code = explode('_', $shippingAddress->getShippingMethod());
+
+            if ($code[0] == 'speedyshippingmodule') {
+                $shipping_amount = $shippingAddress->getShippingAmount();
+                $base_shipping_amount = $shippingAddress->getBaseShippingAmount();
+                $grant_total = $shippingAddress->getGrandTotal();
+                $base_grant_total = $shippingAddress->getBaseGrandTotal();
+                $shipping_description = $shippingAddress->getShippingDescription();
+                $shipping_description = $shippingAddress->getShippingDescription();
+
+                $shippingAddress->setShippingDescription($shipping_description . ' (' . Mage::helper('core')->currency($shipping_amount, true, false) . ')');
+                $shippingAddress->setGrandTotal($grant_total - $shipping_amount);
+                $shippingAddress->setBaseGrandTotal($base_grant_total - $base_shipping_amount);
+                $shippingAddress->setShippingInclTax(0.00);
+                $shippingAddress->setBaseShippingInclTax(0.00);
+                $shippingAddress->setShippingAmount(0.00);
+                $shippingAddress->setBaseShippingAmount(0.00);
+            }
+        }
+    }
 }
 
 ?>

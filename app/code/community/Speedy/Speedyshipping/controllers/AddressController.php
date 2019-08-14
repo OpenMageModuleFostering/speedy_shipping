@@ -73,8 +73,21 @@ protected $_speedyEPSInterfaceImplementaion;
        }
     }
 
-   
+    public function getStatesAction() {
+        $result = $this->_addressModel->getStates();
+       
+       if(isset($result)){
+           $this->getResponse()->setBody($result);
+       }
+    }
     
+    public function getCountriesAction() {
+        $result = $this->_addressModel->getCountries();
+       
+       if(isset($result)){
+           $this->getResponse()->setBody($result);
+       }
+    }
     
      public function getBlockAction() {
         $result = $this->_addressModel->getBlock();

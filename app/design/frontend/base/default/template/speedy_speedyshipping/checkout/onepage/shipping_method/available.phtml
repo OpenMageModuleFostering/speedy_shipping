@@ -28,6 +28,7 @@
         <?php
         $_sole = count($_shippingRateGroups) == 1;
         foreach ($_shippingRateGroups as $code => $_rates):
+            $_rate_error = false;
             ?>
             <dt><?php echo $this->escapeHtml($this->getCarrierName($code)) ?></dt>
             <dd>
@@ -41,6 +42,7 @@
                         <?php $shippingCodePrice[] = "'" . $_rate->getCode() . "':" . (float) $_rate->getPrice(); ?>
                         <li>
                             <?php if ($_rate->getErrorMessage()): ?>
+                                <?php $_rate_error = true; ?>
                                 <ul class="messages"><li class="error-msg"><ul><li><?php echo $this->escapeHtml($_rate->getErrorMessage()) ?></li></ul></li></ul>
                             <?php else: ?>
                                 <?php if ($_sole) : ?>
@@ -105,7 +107,7 @@
                     <?php
                     $carrier = Mage::getModel('shipping/config')->getCarrierInstance($code);
 
-                    if ($carrier->getFormName()) {
+                    if ($carrier->getFormName() && !$_rate_error) {
 
                         $block = $this->getLayout()->createBlock($carrier->getFormName());
                         $block->setMethodCode($code);

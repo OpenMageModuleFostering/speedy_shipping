@@ -25,6 +25,10 @@ require_once 'ResultSpecialDeliveryRequirement.class.php';
 require_once 'ResultCountry.class.php';
 require_once 'ResultState.class.php';
 require_once 'ResultPickingInfo.class.php';
+require_once 'ResultClientInfo.class.php';
+require_once 'ResultAddressInfo.class.php';
+
+require_once 'ResultPickingExtendedInfo.class.php';
 require_once 'ParamCalculation.class.php';
 require_once 'ParamFilterSite.class.php';
 require_once 'ParamAddress.class.php';
@@ -90,10 +94,15 @@ interface EPSInterface {
      * @param ParamLanguage $language language (added in 2.5.0)
      * @throws ServerException Thrown in case communication with server has failed
      * @return array List of ResultCourierServiceExt instances
+     * @param $senderId  (signed 64-bit integer nullable) – Sender ID (added in 2.9.0);
+     * @param $receiverId (signed 64-bit integer nullable) – Receiver ID (added in 2.9.0);
+     * @param $senderOfficeId (signed 64-bit integer nullable) – Sender office ID (added in 2.9.0);
+     * @param $receiverOfficeId (signed 64-bit integer nullable) – Receiver office ID (added in 2.9.0);
     */
     public function listServicesForSites(
         $sessionId, $date, $senderSiteId, $receiverSiteId, 
-        $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode, $language
+        $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode, $language,
+        $senderId, $receiverId, $senderOfficeId, $receiverOfficeId
     );
 
     /**
@@ -137,11 +146,16 @@ interface EPSInterface {
      * @param integer $receiverCountryId Signed 64-bit Receiver's country ID (added in 2.5.0) 
      * @param string $receiverPostCode Receiver's post code (added in 2.5.0)
      * @throws ServerException Thrown in case communication with server has failed
+     * @param $senderId  (signed 64-bit integer nullable) – Sender ID (added in 2.9.0);
+     * @param $receiverId (signed 64-bit integer nullable) – Receiver ID (added in 2.9.0);
+     * @param $senderOfficeId (signed 64-bit integer nullable) – Sender office ID (added in 2.9.0);
+     * @param $receiverOfficeId (signed 64-bit integer nullable) – Receiver office ID (added in 2.9.0);
      * @return ResultMinMaxReal
     */
     public function getWeightInterval(
         $sessionId, $serviceTypeId, $senderSiteId, $receiverSiteId, $date, $documents,
-        $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode
+        $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode,
+        $senderId, $receiverId, $senderOfficeId, $receiverOfficeId
     );
 
     /**
@@ -311,9 +325,10 @@ interface EPSInterface {
      * @param string $senderPostCode Sender's post code (added in 2.5.0)
      * @throws ServerException Thrown in case communication with server has failed
      * @return array List of dates
+     * @param integer $senderId Signed 64-bit Sender's ID (added in 2.9.0)
     */
     public function getAllowedDaysForTaking(
-        $sessionId, $serviceTypeId, $senderSiteId, $senderOfficeId, $minDate, $senderCountryId, $senderPostCode
+        $sessionId, $serviceTypeId, $senderSiteId, $senderOfficeId, $minDate, $senderCountryId, $senderPostCode, $senderId
     );
 
     /**
@@ -479,7 +494,7 @@ interface EPSInterface {
      * @deprecated Use trackPickingEx instead
      * @since 1.0
      * @param string $sessionId
-     * @param integer $billOfLading Signed 64-bit
+     * @param integer $billOfLading Signed 64-bit (@since 2.9.0 @param string $billOfLading)
      * @throws ServerException Thrown in case communication with server has failed
      * @return array List of ResultTrackPicking
     */
@@ -489,34 +504,40 @@ interface EPSInterface {
      * This method can be used to track the state/history of a shipment.
      * @since 1.2
      * @param string $sessionId
-     * @param integer $billOfLading Signed 64-bit
+     * @param integer $billOfLading Signed 64-bit (@since 2.9.0 @param string $billOfLading)
      * @param ParamLanguage $language BG or EN. If set to null the server defaults to BG
      * @throws ServerException Thrown in case communication with server has failed
      * @return array List of ResultTrackPickingEx
+     * @since 2.9.0
+     * @param boolean returnOnlyLastOperation; false is the default value
     */
-    public function trackPickingEx($sessionId, $billOfLading, $language);
+    public function trackPickingEx($sessionId, $billOfLading, $language, $returnOnlyLastOperation);
     
     /**
      * This method can be used to track the state/history of a shipment parcel.
      * @since 1.4
      * @param string $sessionId
-     * @param integer $parcelId Signed 64-bit
+     * @param integer $parcelId Signed 64-bit (@since 2.9.0 @param string $parcelId)
      * @param ParamLanguage $language BG or EN. If set to null the server defaults to BG
      * @throws ServerException Thrown in case communication with server has failed
      * @return array List of ResultTrackPickingEx
+     * @since 2.9.0
+     * @param boolean returnOnlyLastOperation; false is the default value
      */
-    public function trackParcel($sessionId, $parcelId, $language);
+    public function trackParcel($sessionId, $parcelId, $language, $returnOnlyLastOperation);
     
     /**
      * This method can be used to track the state/history of a shipment parcel.
      * @since 2.8.0
      * @param string $sessionId
-     * @param List of integer (Signed 64-bit) $barcodes  
+     * @param List of integer (Signed 64-bit) $barcodes (@since 2.9.0 @param string $barcodes)
      * @param ParamLanguage $language BG or EN. If set to null the server defaults to BG
      * @throws ServerException Thrown in case communication with server has failed
      * @return array List of ResultTrackPickingEx
+     * @since 2.9.0
+     * @param boolean returnOnlyLastOperation; false is the default value
      */
-    public function trackParcelMultiple($sessionId, $barcodes, $language); 
+    public function trackParcelMultiple($sessionId, $barcodes, $language, $returnOnlyLastOperation); 
 
     /**
      * Search BOLs by reference codes (ref1 and/or ref2).
@@ -700,5 +721,15 @@ interface EPSInterface {
      * @since 2.6.0
      */
     public function searchSecondaryPickings($sessionId, $paramSearchSecondaryPickings);
+
+    /**
+     * Returns extended information about the picking with the specified billOfLading. 
+     * @param string $sessionId
+     * @param  integer $billOfLading signed 64-bit
+     * @return List of ResultPickingExtendedInfo Information about picking
+     * @since 2.9.0
+     */
+    public function getPickingExtendedInfo($sessionId, $billOfLading);
+
 }
 ?>

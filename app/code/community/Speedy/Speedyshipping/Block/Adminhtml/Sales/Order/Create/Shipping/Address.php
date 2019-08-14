@@ -37,7 +37,9 @@ class Speedy_Speedyshipping_Block_Adminhtml_Sales_Order_Create_Shipping_Address 
 
         $ids = array();
         foreach ($customer->getAddresses() as $address) {
-            if ($address->getSpeedySiteId()) {
+            if($address->getCountryId() == 'BG' && $address->getSpeedySiteId()){
+                $ids[] = $address->getId();
+            } elseif ($address->getCountryId() != 'BG' && $address->getCity()) {
                 $ids[] = $address->getId();
             }
         }
@@ -56,26 +58,34 @@ class Speedy_Speedyshipping_Block_Adminhtml_Sales_Order_Create_Shipping_Address 
         $origForm = parent::_prepareForm();
         $fieldset = $this->_form->getElement('main');
 
+        //Set country
+        $speedyCountryName = $this->_form->getElement('country_id');
+
+        $fieldset->removeField($speedyCountryName->getId());
+
+        $speedyCountryNameField = $fieldset->addField($speedyCountryName->getId(), 'select', $speedyCountryName->getData(), $this->_form->getElement('company')->getId()
+        );
+
+        //Set postcode
+        $speedyPostcode = $this->_form->getElement('postcode');
+
+        $fieldset->removeField($speedyPostcode->getId());
+
+        $speedyPostcodeField = $fieldset->addField($speedyPostcode->getId(), 'text', $speedyPostcode->getData(), $this->_form->getElement('city')->getId()
+        );
+
         //Set office enabled
         $speedyOfficeEnabled = $this->_form->getElement('speedy_office_chooser');
 
-
-
         $fieldset->removeField($speedyOfficeEnabled->getId());
 
-        $speedyQuarterField = $fieldset->addField($speedyOfficeEnabled->getId(), 'select', $speedyOfficeEnabled->getData(), $this->_form->getElement('city')->getId()
+        $speedyOfficeField = $fieldset->addField($speedyOfficeEnabled->getId(), 'select', $speedyOfficeEnabled->getData(), $this->_form->getElement('region')->getId()
         );
 
 
 
         //Set office name
         $speedyOfficeName = $this->_form->getElement('speedy_office_name');
-        $tempdata = $speedyOfficeName->getData();
-
-
-        //$result = $speedyOfficeName->setValue('testtt');
-
-        $data = $tempdata = $speedyOfficeName->getData();
 
         $fieldset->removeField($speedyOfficeName->getId());
 

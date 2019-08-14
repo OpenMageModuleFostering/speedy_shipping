@@ -53,12 +53,51 @@ $j(document).ready(function(evt){
                 var speedy_pick_from_office = $j('#'+baseFieldSelector + 'speedy_office_chooser').val();
                 var speedy_office_name = $j('#'+baseFieldSelector + 'speedy_office_name').val();
                 var speedy_office_id = $j('#'+baseFieldSelector + 'speedy_office_id').val();
+                var country_id = $j('#'+baseFieldSelector + 'country_id').val();
+                var state_id = $j('#'+baseFieldSelector + 'state_id').val();
+                var city = $j('#'+baseFieldSelector + 'city').val();
+                var speedy_site_id = $j('#'+baseFieldSelector + 'speedy_site_id').val();
+                var speedy_country_id = $j('#'+baseFieldSelector + 'speedy_country_id').val();
+                var postcode = $j('#'+baseFieldSelector + 'postcode').val();
+                var address_1 = $j('#'+baseFieldSelector + 'street0').val();
+                if ($j('#'+baseFieldSelector + 'street1').length != 0) {
+                    var address_2 = $j('#'+baseFieldSelector + 'street1').val();
+                } else {
+                    var address_2 = '';
+                }
                 
-            
                 
+
                 var isValid = 0;
 
-                            if (quarter || (quarter_id !="0" && quarter_id !="")) {
+                            $j('.cod_error_address').remove();
+
+                            if (country_id != 'BG' && typeof validate_abroud_address != 'undefined') {
+                                $j.ajax({
+                                    url: validate_abroud_address,
+                                    dataType: "json",
+                                    async: false,
+                                    data: {
+                                        speedy_site_id: speedy_site_id,
+                                        city: city,
+                                        postcode: postcode,
+                                        address_1: address_1,
+                                        address_2: address_2,
+                                        speedy_country_id: speedy_country_id,
+                                        state_id: state_id,
+                                    },
+                                    success: function(addres_valid) {
+                                        if (addres_valid === 1) {
+                                            isValid = 1;
+                                        }
+                                    },
+                                    error: function(addres_valid) {
+                                        if (addres_valid !== 1 && addres_valid.responseText) {
+                                            $j('#'+baseFieldSelector+'fields .content').append('<ul class="cod_error_address messages"><li class="error-msg">'+addres_valid.responseText+'</li></ul>');
+                                        }
+                                    }
+                                });
+                            } else if (quarter || (quarter_id !="0" && quarter_id !="")) {
                                 if ((street && number || street_id && number) || blockNo || number) {
                                     isValid = 1;
                                 }

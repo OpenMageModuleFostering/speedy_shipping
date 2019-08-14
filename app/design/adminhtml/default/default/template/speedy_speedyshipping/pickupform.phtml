@@ -72,10 +72,16 @@ var fixedHourLabel = "<?php echo $this->__("extra charge").'\"'.$this->__("fixed
     </table>
 </div>
 
+<?php
+$cod_error = '';
+if (Mage::getSingleton('checkout/session')->getSpeedyActiveCurrencyCode()) {
+    $allowedCurrencies = Mage::getModel('directory/currency')->getConfigAllowCurrencies();
+    if (!in_array(Mage::getSingleton('checkout/session')->getSpeedyActiveCurrencyCode(), $allowedCurrencies)) {
+        $cod_error = Mage::helper('speedyshippingmodule')->__('You can\'t use Cash on Delivery, the currency %s is missing. Please contact the administrators of the store!', $activeCurrencyCode);
+    }
+}
+?>
 <script type="text/javascript">
-</script>
-<script type="text/javascript">
-
     $j('document').ready(function() {
  
         var currentMethod = $j('#order-shipping-method-choose input:radio:checked');
@@ -197,7 +203,13 @@ var fixedHourLabel = "<?php echo $this->__("extra charge").'\"'.$this->__("fixed
         }
 
         
-
+        var cod_error = '<?php echo $cod_error; ?>';
+        if (cod_error) {
+            $j('#p_method_cashondelivery').attr('disabled', 'disabled');
+            $j('#order-billing_method_form').before('<ul class="cod_error messages"><li class="error-msg">'+cod_error+'</li></ul>');
+        } else {
+            $j('.cod_error').remove();
+        }
     })
 
 </script>

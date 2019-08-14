@@ -51,6 +51,8 @@ class Speedy_Speedyshipping_Block_Adminhtml_Billoflading extends Mage_Adminhtml_
      * @var type 
      */
     protected $_isSpeedyCarrier = false;
+
+    protected $_isAbroad = false;
     
     /**
      *A boolean flag, indicating whether the currently viewed shipment has an
@@ -72,7 +74,11 @@ class Speedy_Speedyshipping_Block_Adminhtml_Billoflading extends Mage_Adminhtml_
     
     
     protected $_doesUserHasPermission = true;
-
+    
+    
+    protected $_optionsBeforePayment = null;
+    
+    
     /**
      * The purpose of this constructor is to get various request params and 
      * assemble of the urls of various actions inside 
@@ -126,6 +132,19 @@ class Speedy_Speedyshipping_Block_Adminhtml_Billoflading extends Mage_Adminhtml_
         
         if($this->_speedyData->getDeferredDeliveryWorkdays()){
             $this->_deferredDays = $this->_speedyData->getDeferredDeliveryWorkdays();
+        }
+
+        if ($this->_speedyData->getOptionsBeforePayment()) {
+            $this->_optionsBeforePayment = $this->_speedyData->getOptionsBeforePayment();
+        } else {
+            $this->_optionsBeforePayment = Mage::getStoreConfig('carriers/speedyshippingmodule/options_before_payment');
+        }
+
+        $order = Mage::getModel('sales/order')->load($orderId);
+        $this->_shippingAddress = $order->getShippingAddress();
+
+        if ($this->_shippingAddress->getCountryId() != 'BG') {
+            $this->_isAbroad = true;
         }
 
         $this->setTemplate('speedy_speedyshipping/billoflading.phtml');
