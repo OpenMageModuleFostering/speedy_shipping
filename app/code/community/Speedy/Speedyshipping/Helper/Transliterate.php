@@ -52,7 +52,7 @@ class Speedy_Speedyshipping_Helper_Transliterate extends Mage_Core_Helper_Abstra
     }
 
     public function getLanguage($word){
-        if(!$this->isCyrillic($word)){
+        if($this->isCyrillic($word)){
             return 'BG';
         }else{
             return 'EN';
