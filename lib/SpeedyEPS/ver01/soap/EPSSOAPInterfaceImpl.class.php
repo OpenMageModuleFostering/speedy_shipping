@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'EPSInterface.class.php';
+require_once __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'EPSInterface.class.php';
 
 /**
  * Speedy SOAP EPS ver01 Service Interface Implementation
@@ -70,11 +70,12 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::listServices()
      */
-    public function listServices($sessionId, $date) {
+    public function listServices($sessionId, $date, $language) {
         try {
             $listServicesStdObject = new stdClass();
             $listServicesStdObject->sessionId = $sessionId;
             $listServicesStdObject->date      = $date;
+            $listServicesStdObject->language  = $language;
             $response = parent::listServices($listServicesStdObject);
             $arrListServices = array();
             if (isset($response->return)) {
@@ -96,13 +97,21 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::listServicesForSites()
      */
-    public function listServicesForSites($sessionId, $date, $senderSiteId, $receiverSiteId) {
+    public function listServicesForSites(
+        $sessionId, $date, $senderSiteId, $receiverSiteId,
+        $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode, $language
+    ) {
         try {
             $listServicesForSitesStdObject = new stdClass();
-            $listServicesForSitesStdObject->sessionId      = $sessionId;
-            $listServicesForSitesStdObject->date           = $date;
-            $listServicesForSitesStdObject->senderSiteId   = $senderSiteId;
-            $listServicesForSitesStdObject->receiverSiteId = $receiverSiteId;
+            $listServicesForSitesStdObject->sessionId         = $sessionId;
+            $listServicesForSitesStdObject->date              = $date;
+            $listServicesForSitesStdObject->senderSiteId      = $senderSiteId;
+            $listServicesForSitesStdObject->receiverSiteId    = $receiverSiteId;
+            $listServicesForSitesStdObject->senderCountryId   = $senderCountryId;
+            $listServicesForSitesStdObject->senderPostCode    = $senderPostCode;
+            $listServicesForSitesStdObject->receiverCountryId = $receiverCountryId;
+            $listServicesForSitesStdObject->receiverPostCode  = $receiverPostCode;
+            $listServicesForSitesStdObject->language          = $language;
             $response = parent::listServicesForSites($listServicesForSitesStdObject);
             $arrServicesForSitesStdObject = array();
             if (isset($response->return)) {
@@ -124,12 +133,13 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::listSites()
      */
-    public function listSites($sessionId, $type, $name) {
+    public function listSites($sessionId, $type, $name, $language) {
         try {
             $listSitesStdObject = new stdClass();
             $listSitesStdObject->sessionId = $sessionId;
             $listSitesStdObject->type      = $type;
             $listSitesStdObject->name      = $name;
+            $listSitesStdObject->language  = $language;
             $response = parent::listSites($listSitesStdObject);
             $arrListSites = array();
             if (isset($response->return)) {
@@ -151,11 +161,13 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::listSites()
      */
-    public function listSitesEx($sessionId, $paramFilterSite) {
+    public function listSitesEx($sessionId, $paramFilterSite, $language) {
         try {
             $listSitesExStdObject = new stdClass();
             $listSitesExStdObject->sessionId = $sessionId;
             $listSitesExStdObject->filter    = $paramFilterSite->toStdClass();
+            $listSitesExStdObject->language  = $language;
+            
             $response = parent::listSitesEx($listSitesExStdObject);
             $arrListSitesEx = array();
             if (isset($response->return)) {
@@ -177,15 +189,23 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::getWeightInterval()
      */
-    public function getWeightInterval($sessionId, $serviceTypeId, $senderSiteId, $receiverSiteId, $date, $documents) {
+    public function getWeightInterval(
+        $sessionId, $serviceTypeId, $senderSiteId, $receiverSiteId, $date, $documents,
+        $senderCountryId, $senderPostCode, $receiverCountryId, $receiverPostCode
+    ) {
         try {
             $getWeightIntervalStdObject = new stdClass();
-            $getWeightIntervalStdObject->sessionId      = $sessionId;
-            $getWeightIntervalStdObject->serviceTypeId  = $serviceTypeId;
-            $getWeightIntervalStdObject->senderSiteId   = $senderSiteId;
-            $getWeightIntervalStdObject->receiverSiteId = $receiverSiteId;
-            $getWeightIntervalStdObject->date           = $date;
-            $getWeightIntervalStdObject->documents      = $documents;
+            $getWeightIntervalStdObject->sessionId         = $sessionId;
+            $getWeightIntervalStdObject->serviceTypeId     = $serviceTypeId;
+            $getWeightIntervalStdObject->senderSiteId      = $senderSiteId;
+            $getWeightIntervalStdObject->receiverSiteId    = $receiverSiteId;
+            $getWeightIntervalStdObject->date              = $date;
+            $getWeightIntervalStdObject->documents         = $documents;
+            $getWeightIntervalStdObject->senderCountryId   = $senderCountryId;
+            $getWeightIntervalStdObject->senderPostCode    = $senderPostCode;
+            $getWeightIntervalStdObject->receiverCountryId = $receiverCountryId;
+            $getWeightIntervalStdObject->receiverPostCode  = $receiverPostCode;
+            
             $response = parent::getWeightInterval($getWeightIntervalStdObject);
             if (isset($response->return)) {
                 $resultMinMaxReal = new ResultMinMaxReal($response->return);
@@ -201,11 +221,13 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::getAddressNomenclature()
      */
-    public function getAddressNomenclature($sessionId, $nomenType) {
+    public function getAddressNomenclature($sessionId, $nomenType, $countryId) {
         try {
             $getAddressNomenclatureStdObject = new stdClass();
             $getAddressNomenclatureStdObject->sessionId = $sessionId;
             $getAddressNomenclatureStdObject->nomenType = $nomenType;
+            $getAddressNomenclatureStdObject->countryId = $countryId;
+           
             $response = parent::getAddressNomenclature($getAddressNomenclatureStdObject);
             if (isset($response->return)) {
                 $getAddressNomenclature = $response->return;
@@ -221,10 +243,13 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::listAllSites()
      */
-    public function listAllSites($sessionId) {
+    public function listAllSites($sessionId, $language, $countryId) {
         try {
             $listAllSitesStdObject = new stdClass();
             $listAllSitesStdObject->sessionId = $sessionId;
+            $listAllSitesStdObject->language  = $language;
+            $listAllSitesStdObject->countryId = $countryId;
+            
             $response = parent::listAllSites($listAllSitesStdObject);
             $arrListAllSites = array();
             if (isset($response->return)) {
@@ -292,10 +317,12 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::listStreetTypes()
      */
-    public function listStreetTypes($sessionId) {
+    public function listStreetTypes($sessionId, $language) {
         try {
             $listStreetTypesStdObject = new stdClass();
             $listStreetTypesStdObject->sessionId = $sessionId;
+            $listStreetTypesStdObject->language  = $language;
+            
             $response = parent::listStreetTypes($listStreetTypesStdObject);
             $arrListStreetTypes = array();
             if (isset($response->return)) {
@@ -317,10 +344,12 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::listQuarterTypes()
      */
-    public function listQuarterTypes($sessionId) {
+    public function listQuarterTypes($sessionId, $language) {
         try {
             $listQuarterTypesStdObject = new stdClass();
             $listQuarterTypesStdObject->sessionId = $sessionId;
+            $listQuarterTypesStdObject->language  = $language;
+            
             $response = parent::listQuarterTypes($listQuarterTypesStdObject);
             $arrListQuarterTypes = array();
             if (isset($response->return)) {
@@ -342,12 +371,14 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::listStreets()
      */
-    public function listStreets($sessionId, $name, $siteId) {
+    public function listStreets($sessionId, $name, $siteId, $language) {
         try {
             $listStreetsStdObject = new stdClass();
             $listStreetsStdObject->sessionId = $sessionId;
             $listStreetsStdObject->name      = $name;
             $listStreetsStdObject->siteId    = $siteId;
+            $listStreetsStdObject->language  = $language;
+            
             $response = parent::listStreets($listStreetsStdObject);
             $arrlistStreets = array();
             if (isset($response->return)) {
@@ -369,12 +400,14 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::listQuarters()
      */
-    public function listQuarters($sessionId, $name, $siteId) {
+    public function listQuarters($sessionId, $name, $siteId, $language) {
         try {
             $listQuartersStdObject = new stdClass();
             $listQuartersStdObject->sessionId = $sessionId;
             $listQuartersStdObject->name      = $name;
             $listQuartersStdObject->siteId    = $siteId;
+            $listQuartersStdObject->language  = $language;
+            
             $response = parent::listQuarters($listQuartersStdObject);
             $arrListQuarters = array();
             if (isset($response->return)) {
@@ -396,12 +429,13 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::listCommonObjects()
      */
-    public function listCommonObjects($sessionId, $name, $siteId) {
+    public function listCommonObjects($sessionId, $name, $siteId, $language) {
         try {
             $listCommonObjectsStdObject = new stdClass();
             $listCommonObjectsStdObject->sessionId = $sessionId;
             $listCommonObjectsStdObject->name      = $name;
             $listCommonObjectsStdObject->siteId    = $siteId;
+            $listCommonObjectsStdObject->language  = $language;
             $response = parent::listCommonObjects($listCommonObjectsStdObject);
             $arrListCommonObjects = array();
             if (isset($response->return)) {
@@ -423,12 +457,13 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::listBlocks()
      */
-    public function listBlocks($sessionId, $name, $siteId) {
+    public function listBlocks($sessionId, $name, $siteId, $language) {
         try {
             $listBlocksStdObject = new stdClass();
             $listBlocksStdObject->sessionId = $sessionId;
             $listBlocksStdObject->name      = $name;
             $listBlocksStdObject->siteId    = $siteId;
+            $listBlocksStdObject->language  = $language;
             $response = parent::listBlocks($listBlocksStdObject);
             $arrListBlocks = array();
             if (isset($response->return)) {
@@ -497,14 +532,19 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::getAllowedDaysForTaking()
      */
-    public function getAllowedDaysForTaking($sessionId, $serviceTypeId, $senderSiteId, $senderOfficeId, $minDate) {
+    public function getAllowedDaysForTaking(
+        $sessionId, $serviceTypeId, $senderSiteId, $senderOfficeId, $minDate, $senderCountryId, $senderPostCode
+    ) {
         try {
             $getAllowedDaysForTakingStdObject = new stdClass();
-            $getAllowedDaysForTakingStdObject->sessionId      = $sessionId;
-            $getAllowedDaysForTakingStdObject->serviceTypeId  = $serviceTypeId;
-            $getAllowedDaysForTakingStdObject->senderSiteId   = $senderSiteId;
-            $getAllowedDaysForTakingStdObject->senderOfficeId = $senderOfficeId;
-            $getAllowedDaysForTakingStdObject->minDate        = $minDate;
+            $getAllowedDaysForTakingStdObject->sessionId       = $sessionId;
+            $getAllowedDaysForTakingStdObject->serviceTypeId   = $serviceTypeId;
+            $getAllowedDaysForTakingStdObject->senderSiteId    = $senderSiteId;
+            $getAllowedDaysForTakingStdObject->senderOfficeId  = $senderOfficeId;
+            $getAllowedDaysForTakingStdObject->minDate         = $minDate;
+            $getAllowedDaysForTakingStdObject->senderCountryId = $senderCountryId;
+            $getAllowedDaysForTakingStdObject->senderPostCode  = $senderPostCode;
+            
             $response = parent::getAllowedDaysForTaking($getAllowedDaysForTakingStdObject);
             $arrGetAllowedDaysForTaking = array();
             if (isset($response->return)) {
@@ -701,11 +741,12 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     /**
      * @see EPSInterface::invalidatePicking()
      */
-    public function invalidatePicking($sessionId, $billOfLading) {
+    public function invalidatePicking($sessionId, $billOfLading, $cancelComment) {
         try {
             $invalidatePickingStdObject = new stdClass();
-            $invalidatePickingStdObject->sessionId    = $sessionId;
-            $invalidatePickingStdObject->billOfLading = $billOfLading;
+            $invalidatePickingStdObject->sessionId     = $sessionId;
+            $invalidatePickingStdObject->billOfLading  = $billOfLading;
+            $invalidatePickingStdObject->cancelComment = $cancelComment;
             parent::invalidatePicking($invalidatePickingStdObject);
         } catch (SoapFault $sf) {
             throw new ServerException($sf);
@@ -933,6 +974,34 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
     }
     
     /**
+     * @see EPSInterface::trackParcelMultiple()
+     */
+    public function trackParcelMultiple($sessionId, $barcodes, $language) {
+  	  try {
+            $trackParcelMultipleStdObject = new stdClass();
+            $trackParcelMultipleStdObject->sessionId = $sessionId;
+            $trackParcelMultipleStdObject->barcodes  = $barcodes;
+            $trackParcelMultipleStdObject->language  = $language;
+            $response = parent::trackParcelMultiple($trackParcelMultipleStdObject);
+            $arrResultTrackParcelMultiple = array();
+    
+            if (isset($response->return)) {
+                $arrStdResultTrackParcelMultiple = $response->return;
+                if (is_array($arrStdResultTrackParcelMultiple)) {
+                    for($i = 0; $i < count($arrStdResultTrackParcelMultiple); $i++) {
+                        $arrResultTrackParcelMultiple[$i] = new ResultTrackPickingEx($arrStdResultTrackParcelMultiple[$i]);
+                    }
+                } else {
+                    $arrResultTrackParcelMultiple[0] = new ResultTrackPickingEx($arrStdResultTrackParcelMultiple);
+                }
+            }
+            return $arrResultTrackParcelMultiple;
+        } catch (SoapFault $sf) {
+            throw new ServerException($sf);
+        }
+    }
+    
+    /**
      * @see EPSInterface::getMicroregionId
      */
     public function getMicroregionId($sessionId, $coordX, $coordY) {
@@ -1004,13 +1073,13 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
         } catch (SoapFault $sf) {
             throw new ServerException($sf);
         }
-       }
+    }
        
-       /**
-        * @see EPSInterface::validateAddress()
-        */
-       public function validateAddress($sessionId, $address, $validationMode) {
-       	try {
+    /**
+     * @see EPSInterface::validateAddress()
+     */
+    public function validateAddress($sessionId, $address, $validationMode) {
+		try {
        		$validateAddressStdObject = new stdClass();
        		$validateAddressStdObject->sessionId = $sessionId;
        		$validateAddressStdObject->address   = $address->toStdClass();
@@ -1020,13 +1089,13 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
        	} catch (SoapFault $sf) {
        		throw new ServerException($sf);
        	}
-       }
+    }
        
-       /**
-        * @see EPSInterface::listContractClients()
-        */
-       public function listContractClients($sessionId) {
-       	try {
+	/**
+	 * @see EPSInterface::listContractClients()
+	 */
+	public function listContractClients($sessionId) {
+		try {
        		$listContractClientsStdObject = new stdClass();
        		$listContractClientsStdObject->sessionId = $sessionId;
        		$response = parent::listContractClients($listContractClientsStdObject);
@@ -1046,17 +1115,18 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
        	} catch (SoapFault $sf) {
        		throw new ServerException($sf);
        	}
-       }
+	}
        
-       /**
-        * @see EPSInterface::listOfficesEx()
-        */
-       public function listOfficesEx($sessionId, $name, $siteId) {
-       	try {
+	/**
+	 * @see EPSInterface::listOfficesEx()
+	 */
+	public function listOfficesEx($sessionId, $name, $siteId, $language) {
+		try {
        		$listOfficesExStdObject = new stdClass();
        		$listOfficesExStdObject->sessionId = $sessionId;
        		$listOfficesExStdObject->name      = $name;
        		$listOfficesExStdObject->siteId    = $siteId;
+       		$listOfficesExStdObject->language  = $language;
        		$response = parent::listOfficesEx($listOfficesExStdObject);
        		$arrListOfficesEx = array();
        		if (isset($response->return)) {
@@ -1073,6 +1143,272 @@ class EPSSOAPInterfaceImpl extends SoapClient implements EPSInterface {
        	} catch (SoapFault $sf) {
        		throw new ServerException($sf);
        	}
-       }
+	}
+	
+	/**
+	 * @see EPSInterface::deserializeAddress()
+	 */
+	public function deserializeAddress($sessionId, $address) {
+		try {
+       		$deserializeAddressStdObject = new stdClass();
+       		$deserializeAddressStdObject->sessionId = $sessionId;
+       		$deserializeAddressStdObject->address   = $address;
+       		$response = parent::deserializeAddress($deserializeAddressStdObject);
+       		if (isset($response->return)) {
+       			$paramAddress = new ParamAddress($response->return);
+       		} else {
+       			$paramAddress = null;
+       		}
+       		return $paramAddress;
+       	} catch (SoapFault $sf) {
+       		throw new ServerException($sf);
+       	}
+	}
+	
+	/**
+	 * @see EPSInterface::serializeAddress()
+	 */
+	public function serializeAddress($sessionId, $address) {
+		try {
+       		$serializeAddressStdObject = new stdClass();
+       		$serializeAddressStdObject->sessionId = $sessionId;
+       		$serializeAddressStdObject->address   = $address->toStdClass();
+       		$response = parent::serializeAddress($serializeAddressStdObject);
+       		if (isset($response->return)) {
+       			$serializedAddress = $response->return;
+       		} else {
+       			$serializedAddress = null;
+       		}
+       		return $serializedAddress;
+       	} catch (SoapFault $sf) {
+       		throw new ServerException($sf);
+       	}
+	}
+	
+	/**
+	 * @see EPSInterface::makeAddressString()
+	 */
+	public function makeAddressString($sessionId, $address) {
+		try {
+       		$makeAddressStringStdObject = new stdClass();
+       		$makeAddressStringStdObject->sessionId = $sessionId;
+       		$makeAddressStringStdObject->address   = $address->toStdClass();;
+       		$response = parent::makeAddressString($makeAddressStringStdObject);
+       		if (isset($response->return)) {
+       			$resultAddressString = new ResultAddressString($response->return);
+       		} else {
+       			$resultAddressString = null;
+       		}
+       		return $resultAddressString;
+       	} catch (SoapFault $sf) {
+       		throw new ServerException($sf);
+       	}
+	}
+	
+	/**
+	 * @see EPSInterface::getAdditionalUserParams()
+	 */
+	public function getAdditionalUserParams($sessionId, $date) {
+		try {
+       		$getAdditionalUserParamsStdObject = new stdClass();
+       		$getAdditionalUserParamsStdObject->sessionId = $sessionId;
+       		$getAdditionalUserParamsStdObject->date      = $date;
+       		$response = parent::getAdditionalUserParams($getAdditionalUserParamsStdObject);
+       		$arrListAdditionalUserParams = array();
+       		if (isset($response->return)) {
+       			$arrStdListAdditionalUserParams = $response->return;
+       			if (is_array($arrStdListAdditionalUserParams)) {
+       				for($i = 0; $i < count($arrStdListAdditionalUserParams); $i++) {
+       					$arrListAdditionalUserParams[$i] = $arrStdListAdditionalUserParams[$i];
+       				}
+       			} else {
+       				$arrListAdditionalUserParams[0] = $arrStdListAdditionalUserParams;
+       			}
+       		}
+       		return $arrListAdditionalUserParams;
+       	} catch (SoapFault $sf) {
+       		throw new ServerException($sf);
+       	}
+	}	
+	
+	/**
+     * @see EPSInterface::listCountries()
+     */
+    public function listCountries($sessionId, $name, $language) {
+        try {
+            $listCountriesStdObject = new stdClass();
+            $listCountriesStdObject->sessionId = $sessionId;
+            $listCountriesStdObject->name      = $name;
+            $listCountriesStdObject->language  = $language;
+            
+            $response = parent::listCountries($listCountriesStdObject);
+            $arrListCountriesStdObject = array();
+            if (isset($response->return)) {
+                $arrStdListCountriesStdObject = $response->return;
+                if (is_array($arrStdListCountriesStdObject)) {
+                    for($i = 0; $i < count($arrStdListCountriesStdObject); $i++) {
+                        $arrListCountriesStdObject[$i] = new ResultCountry($arrStdListCountriesStdObject[$i]);
+                    }
+                } else {
+                    $arrListCountriesStdObject[0] = new ResultCountry($arrStdListCountriesStdObject);
+                }
+            }
+            return $arrListCountriesStdObject;
+        } catch (SoapFault $sf) {
+            throw new ServerException($sf);
+        }
+    }
+    
+    /**
+     * @see EPSInterface::listCountriesEx()
+     */
+    public function listCountriesEx($sessionId, $filter, $language) {
+        try {
+            $listCountriesExStdObject = new stdClass();
+            $listCountriesExStdObject->sessionId = $sessionId;
+            $listCountriesExStdObject->filter    = $filter->toStdClass();
+            $listCountriesExStdObject->language  = $language;
+            
+            $response = parent::listCountriesEx($listCountriesExStdObject);
+            $arrListCountriesExStdObject = array();
+            if (isset($response->return)) {
+                $arrStdListCountriesExStdObject = $response->return;
+                if (is_array($arrStdListCountriesExStdObject)) {
+                    for($i = 0; $i < count($arrStdListCountriesExStdObject); $i++) {
+                        $arrListCountriesExStdObject[$i] = new ResultCountry($arrStdListCountriesExStdObject[$i]);
+                    }
+                } else {
+                    $arrListCountriesExStdObject[0] = new ResultCountry($arrStdListCountriesExStdObject);
+                }
+            }
+            return $arrListCountriesExStdObject;
+        } catch (SoapFault $sf) {
+            throw new ServerException($sf);
+        }
+    }
+    
+    /**
+     * @see EPSInterface::listStates()
+     */
+    public function listStates($sessionId, $countryId, $name) {
+        try {
+            $listStatesStdObject = new stdClass();
+            $listStatesStdObject->sessionId = $sessionId;
+            $listStatesStdObject->countryId = $countryId;
+            $listStatesStdObject->name      = $name;
+            
+            $response = parent::listStates($listStatesStdObject);
+            $arrListStatesStdObject = array();
+            if (isset($response->return)) {
+                $arrStdListStatesStdObject = $response->return;
+                if (is_array($arrStdListStatesStdObject)) {
+                    for($i = 0; $i < count($arrStdListStatesStdObject); $i++) {
+                        $arrListStatesStdObject[$i] = new ResultState($arrStdListStatesStdObject[$i]);
+                    }
+                } else {
+                    $arrListStatesStdObject[0] = new ResultState($arrStdListStatesStdObject);
+                }
+            }
+            return $arrListStatesStdObject;
+        } catch (SoapFault $sf) {
+            throw new ServerException($sf);
+        }
+    }   
+    
+    /**
+     * @see EPSInterface::getStateById()
+     */
+    public function getStateById($sessionId, $stateId) {
+        try {
+            $getStateByIdStdObject = new stdClass();
+            $getStateByIdStdObject->sessionId = $sessionId;
+            $getStateByIdStdObject->stateId   = $stateId;
+            $response = parent::getStateById($getStateByIdStdObject);
+            if (isset($response->return)) {
+                $resultState = new ResultState($response->return);
+            } else {
+                $resultState = null;
+            }
+            return $resultState;
+        } catch (SoapFault $sf) {
+            throw new ServerException($sf);
+        }
+    }  
+    
+    /**
+     * @see EPSInterface::getStateById()
+     */
+    public function validatePostCode($sessionId, $countryId, $postCode) {
+        try {
+            $validatePostCodeStdObject = new stdClass();
+            $validatePostCodeStdObject->sessionId = $sessionId;
+            $validatePostCodeStdObject->countryId = $countryId;
+            $validatePostCodeStdObject->postCode  = $postCode;
+            $response = parent::validatePostCode($validatePostCodeStdObject);
+            if (isset($response->return)) {
+                $resultFlag = $response->return;
+            } else {
+                $resultFlag = null;
+            }
+            return $resultFlag;
+        } catch (SoapFault $sf) {
+            throw new ServerException($sf);
+        }
+    }
+    
+    /**
+     * @see EPSInterface::getStateById()
+     */
+    public function getPickingDeliveryInfo($sessionId, $billOfLading, $language) {
+       try {
+            $getPickingDeliveryInfoStdObject = new stdClass();
+            $getPickingDeliveryInfoStdObject->sessionId    = $sessionId;
+            $getPickingDeliveryInfoStdObject->billOfLading = $billOfLading;
+            $getPickingDeliveryInfoStdObject->language     = $language;
+            
+            $response = parent::getPickingDeliveryInfo($getPickingDeliveryInfoStdObject);
+            $arrResultTrackPickingExStdObject = array();
+            if (isset($response->return)) {
+                $arrStdResultTrackPickingExStdObject = $response->return;
+                if (is_array($arrStdResultTrackPickingExStdObject)) {
+                    for($i = 0; $i < count($arrStdResultTrackPickingExStdObject); $i++) {
+                        $arrResultTrackPickingExStdObject[$i] = new ResultTrackPickingEx($arrStdResultTrackPickingExStdObject[$i]);
+                    }
+                } else {
+                    $arrResultTrackPickingExStdObject[0] = new ResultTrackPickingEx($arrStdResultTrackPickingExStdObject);
+                }
+            }
+            return $arrResultTrackPickingExStdObject;
+        } catch (SoapFault $sf) {
+            throw new ServerException($sf);
+        }
+    }
+    
+    /**
+     * @see EPSInterface::searchSecondaryPickings()
+     */
+    public function searchSecondaryPickings($sessionId, $paramSearchSecondaryPickings) {
+   		try {
+            $searchSecondaryPickingsStdObject = new stdClass();
+            $searchSecondaryPickingsStdObject->sessionId    = $sessionId;
+            $searchSecondaryPickingsStdObject->paramSearchSecondaryPickings = $paramSearchSecondaryPickings->toStdClass();
+            $response = parent::searchSecondaryPickings($searchSecondaryPickingsStdObject);
+            
+            $arrResultPickingInfoStdObject = array();
+            if (isset($response->return)) {
+                $arrStdResultPickingInfoObject = $response->return;
+                if (is_array($arrStdResultPickingInfoObject)) {
+                    for($i = 0; $i < count($arrStdResultPickingInfoObject); $i++) {
+                        $arrResultPickingInfoStdObject[$i] = new ResultPickingInfo($arrStdResultPickingInfoObject[$i]);
+                    }
+                } else {
+                    $arrResultPickingInfoStdObject[0] = new ResultPickingInfo($arrStdResultPickingInfoObject);
+                }
+            }
+            return $arrResultPickingInfoStdObject;
+        } catch (SoapFault $sf) {
+            throw new ServerException($sf);
+        }
+    }  
 }
 ?>

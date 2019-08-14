@@ -54,6 +54,19 @@ class ParamCalculation {
      */
     private $_serviceTypeId;
 
+	/**
+     * Specifies the specific Speedy office, where the sender intends to deliver the shipment by him/herself. 
+     * If willBringToOfficeId is provided, willBringToOffice flag is considered "true" and the picking "from office", regardless the value provided. 
+     * If willBringToOfficeId is not provied (null) and willBringToOffice flag is "true", willBringToOfficeId is automatically set with default value configured for caller user profile. 
+     * The default willBringToOfficeId value could be managed using profile configuration page in client's Speedy web site. 
+     * If willBringToOfficeId is set to 0, broughtToOffice flag is considered "false". 
+     * MANDATORY: NO
+     * @access private
+     * @var integer signed 64-bit
+     * @since 2.8.0
+     */
+	private $_willBringToOfficeId;
+
     /**
      * Specifies if the sender intends to deliver the shipment to a Speedy office by him/herself instead of ordering a visit by courier
      * MANDATORY: YES
@@ -61,6 +74,18 @@ class ParamCalculation {
      * @var boolean
      */
     private $_broughtToOffice;
+
+	/**
+     * ID of an office "to be called". 
+     * Non-null and non-zero value indicates this picking as "to office". Otherwise "to address" is considered. 
+     * If officeToBeCalledId is provided (non-null and non-zero), toBeCalled flag is considered "true". 
+     * If officeToBeCalledId is set to 0, toBeCalled flag is considered "false". 
+     * MANDATORY: NO
+     * @access private
+     * @var integer signed 64-bit
+     * @since 2.8.0
+     */
+	private $_officeToBeCalledId;
 
     /**
      * Specifies if the shipment is "to be called"
@@ -123,6 +148,14 @@ class ParamCalculation {
      * @var integer Signed 32-bit
      */
     private $_parcelsCount;
+    
+   /**
+     * Data for parcels with explicit/fixed IDs (from the second one onward)
+     * The list has maximum lenght 998
+     * MANDATORY: NO
+     * @var array List of ParamParcelInfo
+     */
+    private $_parcels;
 
     /**
      * Declared weight (the greater of "volume" and "real" weight values).
@@ -217,7 +250,15 @@ class ParamCalculation {
      * @var integer Signed 32-bit
      */
     private $_payerTypeInsurance;
-
+    
+    /**
+     * Packings payer type (0=sender, 1=reciever or 2=third party)
+     * MANDATORY: NO. If not set, the payer of the packings' surcharge will be the same as the one indicated by payerType.
+     * @var integer Signed 32-bit
+     * @since 2.3.0
+     */
+    private $_payerTypePackings;
+    
     /**
      * Insurance payer ID. Must be set <=> shipment has insurance (i.e. amountInsuranceBase > 0) and it is payed by a "third party".
      * MANDATORY: NO
@@ -225,6 +266,54 @@ class ParamCalculation {
      * @var integer Signed 64-bit
      */
     private $_payerRefInsuranceId;
+    
+    /**
+     * Packings payer id
+     * MANDATORY: Must be set <=> payerTypePackings is "third party".
+     * @var integer Signed 64-bit
+     * @since 2.3.0
+     */
+    protected $_payerRefPackingsId;
+    
+    /**
+     * Special delivery id
+     * MANDATORY: NO
+     * @var signed 32-bit integer
+     * @since 2.3.0
+     */
+    protected $_specialDeliveryId;
+
+    /**
+     * Receiver's country ID
+     * MANDATORY: NO. Defaults to Bulgaria when not specified
+     * @var integer Signed 64-bit
+     * @since 2.5.0
+     */
+    private $_receiverCountryId;
+
+    /**
+     * Receiver's post code
+     * MANDATORY: According to internal nomenclature support
+     * @var string
+     * @since 2.5.0
+     */
+    private $_receiverPostCode;
+    
+    /**
+     * Sender's country ID
+     * MANDATORY: NO. Defaults to Bulgaria when not specified
+     * @var integer Signed 64-bit
+     * @since 2.5.0
+     */
+    private $_senderCountryId;
+    
+    /**
+     * Sender's post code
+     * MANDATORY: According to internal nomenclature support
+     * @var string
+     * @since 2.5.0
+     */
+    private $_senderPostCode;
 
     /**
      * Set the date for shipment pick-up (the "time" component is ignored).
@@ -276,6 +365,32 @@ class ParamCalculation {
     public function getServiceTypeId() {
         return $this->_serviceTypeId;
     }
+    
+    /**
+     * Set the specific Speedy office, where the sender intends to deliver the shipment by him/herself. 
+     * If willBringToOfficeId is provided, willBringToOffice flag is considered "true" and the picking "from office", regardless the value provided. 
+     * If willBringToOfficeId is not provied (null) and willBringToOffice flag is "true", willBringToOfficeId is automatically set with default value configured for caller user profile. 
+     * The default willBringToOfficeId value could be managed using profile configuration page in client's Speedy web site. 
+     * If willBringToOfficeId is set to 0, broughtToOffice flag is considered "false". 
+     * @param integer signed 64-bit $willBringToOfficeId Bring-to-office id
+     * @since 2.8.0
+     */
+    public function setWillBringToOfficeId($willBringToOfficeId) {
+        $this->_willBringToOfficeId = $willBringToOfficeId;
+    }
+
+    /**
+     * Get the specific Speedy office, where the sender intends to deliver the shipment by him/herself. 
+     * If willBringToOfficeId is provided, willBringToOffice flag is considered "true" and the picking "from office", regardless the value provided. 
+     * If willBringToOfficeId is not provied (null) and willBringToOffice flag is "true", willBringToOfficeId is automatically set with default value configured for caller user profile. 
+     * The default willBringToOfficeId value could be managed using profile configuration page in client's Speedy web site. 
+     * If willBringToOfficeId is set to 0, broughtToOffice flag is considered "false". 
+     * @return integer signed 64-bit Bring-to-office id
+     * @since 2.8.0
+     */
+    public function getWillBringToOfficeId() {
+        return $this->_willBringToOfficeId;
+    }
 
     /**
      * Set flag for brought-to-office
@@ -292,6 +407,30 @@ class ParamCalculation {
      */
     public function isBroughtToOffice() {
         return $this->_broughtToOffice;
+    }
+
+	/**
+     * Set ID of the office "to be called". 
+     * Non-null and non-zero value indicates this picking as "to office". Otherwise "to address" is considered. 
+     * If officeToBeCalledId is provided (non-null and non-zero), toBeCalled flag is considered "true". 
+     * If officeToBeCalledId is set to 0, toBeCalled flag is considered "false". 
+     * @param integer signed 64-bit $officeToBeCalledId Office-to-be-called id
+     * @since 2.8.0
+     */
+    public function setOfficeToBeCalledId($officeToBeCalledId) {
+        $this->_officeToBeCalledId = $officeToBeCalledId;
+    }
+
+    /**
+     * Get ID of the office "to be called". 
+     * Non-null and non-zero value indicates this picking as "to office". Otherwise "to address" is considered. 
+     * If officeToBeCalledId is provided (non-null and non-zero), toBeCalled flag is considered "true". 
+     * If officeToBeCalledId is set to 0, toBeCalled flag is considered "false". 
+     * @return integer signed 64-bit Office-to-be-called id
+     * @since 2.8.0
+     */
+    public function getOfficeToBeCalledId() {
+        return $this->_officeToBeCalledId;
     }
 
     /**
@@ -595,6 +734,24 @@ class ParamCalculation {
         return $this->_payerTypeInsurance;
     }
 
+    
+    /**
+     * Set packings payer type (0=sender, 1=reciever or 2=third party).
+     * Must be set <=> shipment is insured (i.e. amountInsuranceBase > 0).
+     * @param integer $payerTypePackings Signed 32-bit
+     */
+    public function setPayerTypePackings($payerTypePackings) {
+    	$this->_payerTypePackings = $payerTypePackings;
+    }
+    
+    /**
+     * Get packings payer type (0=sender, 1=reciever or 2=third party).
+     * @return integer Insurance payer type  - signed 32-bit
+     */
+    public function getPayerTypePackings() {
+    	return $this->_payerTypePackings;
+    }
+    
     /**
      * Set insurance payer ID from Speedy client nomenclature.
      * Must be set <=> shipment has insurance (i.e. amountInsuranceBase > 0) and it is payed by a "third party".
@@ -611,6 +768,118 @@ class ParamCalculation {
     public function getPayerRefInsuranceId() {
         return $this->_payerRefInsuranceId;
     }
+    
+    /**
+     * Set packings payer ID
+     * @param integer $payerRefPackingsId Signed 64-bit
+     */
+    public function setPayerRefPackingsId($payerRefPackingsId) {
+    	$this->_payerRefPackingsId = $payerRefPackingsId;
+    }
+    
+    /**
+     * Get packings payer ID
+     * @return integer Signed 64-bit
+     */
+    public function getPayerRefPackingsId() {
+    	return $this->_payerRefPackingsId;
+    }
+    
+    /**
+     * Gets the special delivery id
+     * @return signed 32-bit integer special delivery id
+     */
+    public function getSpecialDeliveryId() {
+    	return $this->_specialDeliveryId;
+    }
+    
+    /**
+     * Sets the special delivery id
+     * @param signed 32-bit integer $specialDeliveryId Special delivery id
+     */
+    public function setSpecialDeliveryId($specialDeliveryId) {
+    	$this->_specialDeliveryId = $specialDeliveryId;
+    }
+    
+    /**
+     * Set the receiver country id
+     * @param integer signed 64-bit $receiverCountryId
+     */
+    public function setReceiverCountryId($receiverCountryId) {
+        $this->_receiverCountryId = $receiverCountryId;
+    }
+
+    /**
+     * Get receiver country id.
+     * @return integer signed 64-bit Receiver country id
+     */
+    public function getReceiverCountryId() {
+        return $this->_receiverCountryId;
+    }
+    
+    /**
+     * Set the receiver post code
+     * @param string $receiverPostCode
+     */
+    public function setReceiverPostCode($receiverPostCode) {
+        $this->_receiverPostCode = $receiverPostCode;
+    }
+
+    /**
+     * Get receiver post code
+     * @return string Receiver post code
+     */
+    public function getReceiverPostCode() {
+        return $this->_receiverPostCode;
+    }
+    
+    /**
+     * Set the sender country id
+     * @param integer signed 64-bit $senderCountryId
+     */
+    public function setSenderCountryId($senderCountryId) {
+        $this->_senderCountryId = $senderCountryId;
+    }
+
+    /**
+     * Get sender country id.
+     * @return integer signed 64-bit Sender country id
+     */
+    public function getSenderCountryId() {
+        return $this->_senderCountryId;
+    }
+    
+    /**
+     * Set the sender post code
+     * @param string $senderPostCode
+     */
+    public function setSenderPostCode($senderPostCode) {
+        $this->_senderPostCode = $senderPostCode;
+    }
+
+    /**
+     * Get sender post code
+     * @return string Sender post code
+     */
+    public function getSenderPostCode() {
+        return $this->_senderPostCode;
+    }
+    
+    /**
+     * Set data for parcels with explicit/fixed IDs (from the second one onward)
+     * @param array $parcels List of ParamParcelInfo
+     */
+    public function setParcels($parcels) {
+        $this->_parcels = $parcels;
+    }
+
+    /**
+     * Get data for parcels with explicit/fixed IDs (from the second one onward)
+     * @return array List of ParamParcelInfo
+     */
+    public function getParcels() {
+        return $this->_parcels;
+    }
 
     /**
      * Return standard class from this class
@@ -621,7 +890,9 @@ class ParamCalculation {
         $stdClass->takingDate               = $this->_takingDate;
         $stdClass->autoAdjustTakingDate     = $this->_autoAdjustTakingDate;
         $stdClass->serviceTypeId            = $this->_serviceTypeId;
+        $stdClass->willBringToOfficeId      = $this->_willBringToOfficeId;
         $stdClass->broughtToOffice          = $this->_broughtToOffice;
+        $stdClass->officeToBeCalledId       = $this->_officeToBeCalledId;
         $stdClass->toBeCalled               = $this->_toBeCalled;
         $stdClass->fixedTimeDelivery        = $this->_fixedTimeDelivery;
         $stdClass->deferredDeliveryWorkDays = $this->_deferredDeliveryWorkDays;
@@ -640,7 +911,27 @@ class ParamCalculation {
         $stdClass->payerType                = $this->_payerType;
         $stdClass->payerRefId               = $this->_payerRefId;
         $stdClass->payerTypeInsurance       = $this->_payerTypeInsurance;
+        $stdClass->payerTypePackings        = $this->_payerTypePackings;
         $stdClass->payerRefInsuranceId      = $this->_payerRefInsuranceId;
+        $stdClass->payerRefPackingsId       = $this->_payerRefPackingsId;
+        $stdClass->specialDeliveryId        = $this->_specialDeliveryId;
+        $stdClass->receiverCountryId        = $this->_receiverCountryId;
+        $stdClass->receiverPostCode         = $this->_receiverPostCode;
+        $stdClass->senderCountryId          = $this->_senderCountryId;
+        $stdClass->senderPostCode           = $this->_senderPostCode;
+        
+        $arrStdClassParamParcelInfo = array();
+        if (isset($this->_parcels)) {
+            if (is_array($this->_parcels)) {
+                for($i = 0; $i < count($this->_parcels); $i++) {
+                    $arrStdClassParamParcelInfo[$i] = $this->_parcels[$i]->toStdClass();
+                }
+            } else {
+                $arrStdClassParamParcelInfo[0] = $this->_parcels->toStdClass();
+            }
+        }
+        $stdClass->parcels                  = $arrStdClassParamParcelInfo;
+        
         return $stdClass;
     }
 }

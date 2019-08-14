@@ -5,6 +5,13 @@
  */
 class ResultTrackPickingEx {
 
+	/**
+     * BOL number or parcel id
+     * @var integer signed 64-bit (nullable)
+     * @since 2.8.0
+     */
+	private $_barcode;
+
     /**
      * Date and time
      * @var date
@@ -59,11 +66,19 @@ class ResultTrackPickingEx {
      */
     private $_redirectBillOfLading;
 
+	/**
+     * Image URL for proof of delivery
+     * @var string
+     * @since 2.8.0
+     */
+	private $_signatureImage;
+
     /**
      * Constructs new instance of ResultTrackPickingEx
      * @param stdClass $stdClassResultTrackPickingEx
      */
     function __construct($stdClassResultTrackPickingEx) {
+   		$this->_barcode              = isset($stdClassResultTrackPickingEx->barcode)              ? $stdClassResultTrackPickingEx->barcode              : null;
         $this->_moment               = isset($stdClassResultTrackPickingEx->moment)               ? $stdClassResultTrackPickingEx->moment               : null;
         $this->_operationCode        = isset($stdClassResultTrackPickingEx->operationCode)        ? $stdClassResultTrackPickingEx->operationCode        : null;
         $this->_operationDescription = isset($stdClassResultTrackPickingEx->operationDescription) ? $stdClassResultTrackPickingEx->operationDescription : null;
@@ -73,9 +88,18 @@ class ResultTrackPickingEx {
         $this->_consignee            = isset($stdClassResultTrackPickingEx->consignee)            ? $stdClassResultTrackPickingEx->consignee            : null;
         $this->_returnBillOfLading   = isset($stdClassResultTrackPickingEx->returnBillOfLading)   ? $stdClassResultTrackPickingEx->returnBillOfLading   : null;
         $this->_redirectBillOfLading = isset($stdClassResultTrackPickingEx->redirectBillOfLading) ? $stdClassResultTrackPickingEx->redirectBillOfLading : null;
+        $this->_signatureImage       = isset($stdClassResultTrackPickingEx->signatureImage)       ? $stdClassResultTrackPickingEx->signatureImage       : null;
     }
 
-
+	/**
+     * Get barcode (BOL number or parcel id)
+     * @return integer signed 64-bit
+     * @since 2.8.0
+     */
+    public function getBarcode() {
+        return $this->_barcode;
+    }
+    
     /**
      * Get date and time of the request
      * @return date
@@ -146,6 +170,15 @@ class ResultTrackPickingEx {
      */
     public function getRedirectBillOfLading() {
         return $this->_redirectBillOfLading;
+    }
+    
+    /**
+     * Get image URL for proof of delivery
+     * @return integer signed 64-bit
+     * @since 2.8.0
+     */
+    public function getSignatureImage() {
+        return $this->_signatureImage;
     }
 }
 ?>

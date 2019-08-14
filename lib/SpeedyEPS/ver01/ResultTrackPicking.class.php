@@ -4,6 +4,13 @@
  */
 class ResultTrackPicking {
 
+	/**
+     * BOL number or parcel id
+     * @var integer signed 64-bit (nullable)
+     * @since 2.8.0
+     */
+	private $_barcode;
+	
     /**
      * Date and time
      * @var date
@@ -45,12 +52,20 @@ class ResultTrackPicking {
      * @var string
      */
     private $_consignee;
+    
+    /**
+     * Image URL for proof of delivery
+     * @var string
+     * @since 2.8.0
+     */
+	private $_signatureImage;
 
     /**
      * Constructs new instance of ResultTrackPicking
      * @param stdClass $stdClassResultTrackPicking
      */
     function __construct($stdClassResultTrackPicking) {
+    	$this->_barcode              = isset($stdClassResultTrackPicking->barcode)              ? $stdClassResultTrackPicking->barcode              : null;
         $this->_moment               = isset($stdClassResultTrackPicking->moment)               ? $stdClassResultTrackPicking->moment               : null;
         $this->_operationCode        = isset($stdClassResultTrackPicking->operationCode)        ? $stdClassResultTrackPicking->operationCode        : null;
         $this->_operationDescription = isset($stdClassResultTrackPicking->operationDescription) ? $stdClassResultTrackPicking->operationDescription : null;
@@ -58,6 +73,16 @@ class ResultTrackPicking {
         $this->_siteType             = isset($stdClassResultTrackPicking->siteType)             ? $stdClassResultTrackPicking->siteType             : null;
         $this->_siteName             = isset($stdClassResultTrackPicking->siteName)             ? $stdClassResultTrackPicking->siteName             : null;
         $this->_consignee            = isset($stdClassResultTrackPicking->consignee)            ? $stdClassResultTrackPicking->consignee            : null;
+        $this->_signatureImage       = isset($stdClassResultTrackPicking->signatureImage)       ? $stdClassResultTrackPicking->signatureImage       : null;
+    }
+    
+    /**
+     * Get barcode (BOL number or parcel id)
+     * @return integer signed 64-bit
+     * @since 2.8.0
+     */
+    public function getBarcode() {
+        return $this->_barcode;
     }
 
     /**
@@ -114,6 +139,15 @@ class ResultTrackPicking {
      */
     public function getConsignee() {
         return $this->_consignee;
+    }
+    
+    /**
+     * Get image URL for proof of delivery
+     * @return integer signed 64-bit
+     * @since 2.8.0
+     */
+    public function getSignatureImage() {
+        return $this->_signatureImage;
     }
 }
 ?>

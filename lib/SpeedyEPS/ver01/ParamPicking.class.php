@@ -4,6 +4,10 @@ require_once 'Size.class.php';
 require_once 'ParamClientData.class.php';
 require_once 'FixedDiscountCardId.class.php';
 require_once 'ParamParcelInfo.class.php';
+require_once 'ParamOptionsBeforePayment.class.php';
+require_once 'ParamPackings.class.php';
+require_once 'ParamReturnServiceRequest.class.php';
+require_once 'ParamReturnShipmentRequest.class.php';
 
 /**
  * Instances of this class are passed as a parameter of Speedy web service calls for calclualation and registration
@@ -38,6 +42,14 @@ class ParamPicking {
      * @var integer Signed 64-bit
      */
     private $_officeToBeCalledId;
+    
+    /**
+     * Options before payment
+     * MANDATORY: NO
+     * @var ParamOptionsBeforePayment
+     * @since 2.3.0
+     */
+    protected $_optionsBeforePayment;
 
     /**
      * Fixed time for delivery ("HHmm" format, i.e., the number "1315" means "13:15", "830" means "8:30" etc.)
@@ -75,6 +87,14 @@ class ParamPicking {
      * @var boolean
      */
     private $_willBringToOffice;
+    
+    /**
+     * Special delivery id
+     * MANDATORY: NO
+     * @var signed 32-bit integer
+     * @since 2.3.0
+     */
+    protected $_specialDeliveryId;
     
     /**
      * Specifies the specific Speedy office, where the sender intends to deliver the shipment by him/herself. 
@@ -118,6 +138,14 @@ class ParamPicking {
      * @var double Signed 64-bit
      */
     private $_retMoneyTransferReqAmount;
+    
+    /**
+     * Return third party payer flag
+     * MANDATORY: NO
+     * @var boolean
+     * @since 2.3.0
+     */
+    protected $_retThirdPartyPayer;
 
     /**
      * Parcels count. Maximum value is 999.
@@ -154,6 +182,14 @@ class ParamPicking {
      * @var string
      */
     private $_packing;
+    
+    /**
+     * Data for packings. For internal use only
+     * MANDATORY: NO
+     * @var ParamPackings
+     * @since 2.3.0
+     */
+    private $_packings;
 
     /**
      * Packing ID (number)
@@ -217,6 +253,14 @@ class ParamPicking {
      * @var integer Signed 32-bit
      */
     private $_payerTypeInsurance;
+    
+    /**
+     * Packings payer type (0=sender, 1=reciever or 2=third party)
+     * MANDATORY: No.If not set, the payer of the packings' surcharge will be the same as the one indicated by payerType.
+     * @var integer Signed 32-bit
+     * @since 2.3.0
+     */
+    protected $_payerTypePackings;
 
     /**
      * Insurance payer ID
@@ -224,6 +268,14 @@ class ParamPicking {
      * @var integer Signed 64-bit
      */
     private $_payerRefInsuranceId;
+    
+    /**
+     * Packings payer ID
+     * MANDATORY: Must be set <=> payerTypePackings is "third party".
+     * @var integer Signed 64-bit
+     * @since 2.3.0
+     */
+    protected $_payerRefPackingsId;
 
     /**
      * Client's note
@@ -302,6 +354,22 @@ class ParamPicking {
      * @var boolean
      */
     private $_pendingShipmentDescription;
+    
+    /**
+     * Return service request
+     * MANDATORY: NO
+     * @var array of ParamReturnServiceRequest
+     * since 2.5.0
+     */
+    private $_retServicesRequest;
+    
+    /**
+     * Return shipment request
+     * MANDATORY: NO
+     * @var ParamReturnShipmentRequest
+     * since 2.5.0
+     */
+    private $_retShipmentRequest;
 
     /**
      * Set BOL number
@@ -365,6 +433,22 @@ class ParamPicking {
      */
     public function getOfficeToBeCalledId() {
         return $this->_officeToBeCalledId;
+    }
+    
+    /**
+     * Set options before payment
+     * @param ParamOptionsBeforePayment $optionsBeforePayment
+     */
+    public function setOptionsBeforePayment($optionsBeforePayment) {
+    	$this->_optionsBeforePayment = $optionsBeforePayment;
+    }
+    
+    /**
+     * Get options before payment
+     * @return integer Signed 64-bit
+     */
+    public function getOptionsBeforePayment() {
+    	return $this->_optionsBeforePayment;
     }
 
     /**
@@ -464,6 +548,22 @@ class ParamPicking {
     public function getWillBringToOfficeId() {
         return $this->_willBringToOfficeId;
     }
+    
+    /**
+     * Gets the special delivery id
+     * @return signed 32-bit integer special delivery id
+     */
+    public function getSpecialDeliveryId() {
+    	return $this->_specialDeliveryId;
+    }
+    
+    /**
+     * Sets the special delivery id
+     * @param signed 32-bit integer $specialDeliveryId Special delivery id
+     */
+    public function setSpecialDeliveryId($specialDeliveryId) {
+    	$this->_specialDeliveryId = $specialDeliveryId;
+    }
 
     /**
      * Set shipment insurance value (if the shipment is insured).
@@ -527,6 +627,22 @@ class ParamPicking {
      */
     public function getRetMoneyTransferReqAmount() {
         return $this->_retMoneyTransferReqAmount;
+    }
+    
+    /**
+     * Set return picking third party payer flag 
+     * @param boolean $retThirdPartyPayer return picking third party payer flag 
+     */
+    public function setRetThirdPartyPayer($retThirdPartyPayer) {
+    	$this->_retThirdPartyPayer = $retThirdPartyPayer;
+    }
+    
+    /**
+     * Gets return picking third party payer flag 
+     * @return boolean Picking third party payer flag 
+     */
+    public function isRetThirdPartyPayer() {
+    	return $this->_retThirdPartyPayer;
     }
 
     /**
@@ -608,6 +724,23 @@ class ParamPicking {
     public function getPacking() {
         return $this->_packing;
     }
+    
+    /**
+     * Set packings
+     * @param Array of ParamPackings $packings
+     */
+    public function setPackings($packings) {
+    	$this->_packings = $packings;
+    }
+    
+    /**
+     * Get packings.
+     * @return Array of ParamPackings
+     */
+    public function getPackings() {
+    	return $this->_packings;
+    }
+    
 
     /**
      * Set packing ID (number)
@@ -752,6 +885,22 @@ class ParamPicking {
     public function getPayerTypeInsurance() {
         return $this->_payerTypeInsurance;
     }
+    
+    /**
+     * Set packings payer type (0=sender, 1=reciever or 2=third party)
+     * @param integer $payerTypePackings Signed 32-bit
+     */
+    public function setPayerTypePackings($payerTypePackings) {
+    	$this->_payerTypePackings = $payerTypePackings;
+    }
+    
+    /**
+     * Get packings payer type
+     * @return integer Signed 32-bit
+     */
+    public function getPayerTypePackings() {
+    	return $this->_payerTypePackings;
+    }
 
     /**
      * Set insurance payer ID
@@ -767,6 +916,23 @@ class ParamPicking {
      */
     public function getPayerRefInsuranceId() {
         return $this->_payerRefInsuranceId;
+    }
+    
+    
+    /**
+     * Set packings payer ID
+     * @param integer $payerRefPackingsId Signed 64-bit
+     */
+    public function setPayerRefPackingsId($payerRefPackingsId) {
+    	$this->_payerRefPackingsId = $payerRefPackingsId;
+    }
+    
+    /**
+     * Get packings payer ID
+     * @return integer Signed 64-bit
+     */
+    public function getPayerRefPackingsId() {
+    	return $this->_payerRefPackingsId;
     }
 
     /**
@@ -930,6 +1096,38 @@ class ParamPicking {
     public function isPendingShipmentDescription() {
         return $this->_pendingShipmentDescription;
     }
+    
+    /**
+     * Get return service request list
+     * @return array of ParamReturnServiceRequest
+     */
+    public function getRetServicesRequest() {
+        return $this->_retServicesRequest;
+    }
+    
+    /**
+     * Set return service request list
+     * @param array of ParamReturnServiceRequest
+     */
+    public function setRetServicesRequest($retServicesRequest) {
+        $this->_retServicesRequest = $retServicesRequest;
+    }
+    
+    /**
+     * Get return service request list
+     * @return ParamReturnShipmentRequest
+     */
+    public function getRetShipmentRequest() {
+        return $this->_retShipmentRequest;
+    }
+    
+    /**
+     * Set return shipment request
+     * @param ParamReturnShipmentRequest $retShipmentRequest
+     */
+    public function setRetShipmentRequest($retShipmentRequest) {
+        $this->_retShipmentRequest = $retShipmentRequest;
+    }
 
     /**
      * Return standard class from this class
@@ -941,16 +1139,22 @@ class ParamPicking {
         $stdClass->takingDate                   = $this->_takingDate;
         $stdClass->serviceTypeId                = $this->_serviceTypeId;
         $stdClass->officeToBeCalledId           = $this->_officeToBeCalledId;
+        if (isset($this->_optionsBeforePayment)) {
+        	$stdClass->optionsBeforePayment = $this->_optionsBeforePayment->toStdClass();
+        }
+        
         $stdClass->fixedTimeDelivery            = $this->_fixedTimeDelivery;
         $stdClass->deferredDeliveryWorkDays     = $this->_deferredDeliveryWorkDays;
         $stdClass->backDocumentsRequest         = $this->_backDocumentsRequest;
         $stdClass->backReceiptRequest           = $this->_backReceiptRequest;
         $stdClass->willBringToOffice            = $this->_willBringToOffice;
         $stdClass->willBringToOfficeId          = $this->_willBringToOfficeId;
+        $stdClass->specialDeliveryId            = $this->_specialDeliveryId;
         $stdClass->amountInsuranceBase          = $this->_amountInsuranceBase;
         $stdClass->amountCodBase                = $this->_amountCodBase;
         $stdClass->payCodToThirdParty           = $this->_payCodToThirdParty;
         $stdClass->retMoneyTransferReqAmount    = $this->_retMoneyTransferReqAmount;
+        $stdClass->retThirdPartyPayer           = $this->_retThirdPartyPayer;
         $stdClass->parcelsCount                 = $this->_parcelsCount;
         if (isset($this->_size)) {
             $stdClass->size = $this->_size->toStdClass();
@@ -958,6 +1162,19 @@ class ParamPicking {
         $stdClass->weightDeclared               = $this->_weightDeclared;
         $stdClass->contents                     = $this->_contents;
         $stdClass->packing                      = $this->_packing;
+        
+        $arrStdClassParamPackings = array();
+        if (isset($this->_packings)) {
+        	if (is_array($this->_packings)) {
+        		for($i = 0; $i < count($this->_packings); $i++) {
+        			$arrStdClassParamPackings[$i] = $this->_packings[$i]->toStdClass();
+        		}
+        	} else {
+        		$arrStdClassParamPackings[0] = $this->_packings->toStdClass();
+        	}
+        }
+        $stdClass->packings = $arrStdClassParamPackings;
+        
         $stdClass->packId                       = $this->_packId;
         $stdClass->documents                    = $this->_documents;
         $stdClass->fragile                      = $this->_fragile;
@@ -971,7 +1188,9 @@ class ParamPicking {
         $stdClass->payerType                    = $this->_payerType;
         $stdClass->payerRefId                   = $this->_payerRefId;
         $stdClass->payerTypeInsurance           = $this->_payerTypeInsurance;
+        $stdClass->payerTypePackings            = $this->_payerTypePackings;
         $stdClass->payerRefInsuranceId          = $this->_payerRefInsuranceId;
+        $stdClass->payerRefPackingsId           = $this->_payerRefPackingsId;
         $stdClass->noteClient                   = $this->_noteClient;
         if (isset($this->_discCalc)) {
             $stdClass->discCalc = $this->_discCalc->toStdClass();
@@ -994,6 +1213,20 @@ class ParamPicking {
         $stdClass->skipAutomaticParcelsCreation = $this->_skipAutomaticParcelsCreation;
         $stdClass->pendingParcelsDescription    = $this->_pendingParcelsDescription;
         $stdClass->pendingShipmentDescription   = $this->_pendingShipmentDescription;
+        $arrStdClassParamReturnServiceRequest = array();
+        if (isset($this->_retServicesRequest)) {
+            if (is_array($this->_retServicesRequest)) {
+                for($i = 0; $i < count($this->_retServicesRequest); $i++) {
+                    $arrStdClassParamReturnServiceRequest[$i] = $this->_retServicesRequest[$i]->toStdClass();
+                }
+            } else {
+                $arrStdClassParamReturnServiceRequest[0] = $this->_retServicesRequest->toStdClass();
+            }
+        }
+        $stdClass->retServicesRequest           = $arrStdClassParamReturnServiceRequest;
+        if (isset($this->_retShipmentRequest)) {
+            $stdClass->retShipmentRequest       = $this->_retShipmentRequest->toStdClass();
+        }
         return $stdClass;
     }
 }

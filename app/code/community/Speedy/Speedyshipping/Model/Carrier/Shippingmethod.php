@@ -1177,13 +1177,25 @@ class Speedy_Speedyshipping_Model_Carrier_Shippingmethod extends Mage_Shipping_M
             $paramCalculation->setFragile($this->_pickingData->fragile);
         }
 
-        $paramCalculation->setReceiverSiteId($this->_receiverData->address->siteID);
+        if (!($this->_pickingData->takeFromOfficeId)) {
+            $paramCalculation->setReceiverSiteId($this->_receiverData->address->siteID);
+        }
 
         $paramCalculation->setPayerType($this->_pickingData->payerType);
 
         $paramCalculation->setAmountCodBase($this->_pickingData->amountCODBase);
 
         $paramCalculation->setTakingDate($this->_pickingData->takingDate);
+
+        if (Mage::getStoreConfig('carriers/speedyshippingmodule/bring_to_office') && Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office')) {
+            $paramCalculation->setWillBringToOfficeId(Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office'));
+        }
+
+        if ($this->_pickingData->takeFromOfficeId) {
+            $paramCalculation->setOfficeToBeCalledId($this->_pickingData->takeFromOfficeId);
+        } else { 
+            $paramCalculation->setOfficeToBeCalledId(null);
+        }
 
 
         /*
