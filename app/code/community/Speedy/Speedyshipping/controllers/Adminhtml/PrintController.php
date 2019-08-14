@@ -540,15 +540,13 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
 
         $serviceId = $this->_orderData->getServiceTypeId();
 
-        $willBringToOffice = false;
-
-
-
-        if (Mage::getStoreConfig('carriers/speedyshippingmodule/bring_to_office') &&
-                Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office')) {
-            $willBringToOffice = 1;
+        if (Mage::getStoreConfig('carriers/speedyshippingmodule/bring_to_office') && Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office')) {
+            $senderSiteId = null;
+            $senderOfficeId = Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office');
+        } else {
+            $senderSiteId = $this->_senderData->getAddress()->getSiteId();
+            $senderOfficeId = null;
         }
-
 
         $time = null;
         $numDays = (int) Mage::getStoreConfig('carriers/speedyshippingmodule/speedyTakingtimeOffset');
@@ -564,7 +562,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
             $time = time();
         }
 
-        $takingTime = $this->_speedyEPS->getAllowedDaysForTaking($serviceId, !$willBringToOffice ? $this->_senderData->getAddress()->getSiteId() : null, $willBringToOffice, $time);
+        $takingTime = $this->_speedyEPS->getAllowedDaysForTaking($serviceId, $senderSiteId, $senderOfficeId, $time);
 
         if ($takingTime) {
 
@@ -653,13 +651,13 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
 
         $serviceId = $this->_orderData->getServiceTypeId();
 
-        $willBringToOffice = false;
-
-        if (Mage::getStoreConfig('carriers/speedyshippingmodule/bring_to_office') &&
-                Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office')) {
-            $willBringToOffice = 1;
+        if (Mage::getStoreConfig('carriers/speedyshippingmodule/bring_to_office') && Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office')) {
+            $senderSiteId = null;
+            $senderOfficeId = Mage::getStoreConfig('carriers/speedyshippingmodule/choose_office');
+        } else {
+            $senderSiteId = $this->_senderData->getAddress()->getSiteId();
+            $senderOfficeId = null;
         }
-
 
         $time = null;
         $numDays = (int) Mage::getStoreConfig('carriers/speedyshippingmodule/speedyTakingtimeOffset');
@@ -678,7 +676,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
 
         $takingTime = null;
 
-        $takingTime = $this->_speedyEPS->getAllowedDaysForTaking($serviceId, !$willBringToOffice ? $this->_senderData->getAddress()->getSiteId() : null, $willBringToOffice, $time);
+        $takingTime = $this->_speedyEPS->getAllowedDaysForTaking($serviceId, $senderSiteId, $senderOfficeId, $time);
 
         if ($takingTime) {
 
@@ -1153,7 +1151,7 @@ class Speedy_Speedyshipping_Adminhtml_PrintController extends Mage_Adminhtml_Con
         $picking = new ParamPicking();
 
         //DO NOT CHANGE THIS LINE
-        $picking->setClientSystemId(1307306132);
+        $picking->setClientSystemId(1307306133);
         $picking->setRef1($this->_orderID);
 
         $size = $this->getParcelSizes();
